@@ -8,7 +8,7 @@ import segua.AttackerType;
 import segua.Target;
 import segua.decision_rules.multi_set_profile_decision_rules.SetDefault;
 import segua.decision_rules.multi_single_profile_decision_rules.GammaMaximin;
-import segua.decision_rules.multi_single_profile_decision_rules.HurwitzCriterion;
+import segua.decision_rules.multi_single_profile_decision_rules.HurwiczCriterion;
 import segua.decision_rules.multi_single_profile_decision_rules.Maximax;
 import segua.decision_rules.multi_single_profile_decision_rules.SingleDefault;
 import segua.decision_rules.multi_single_profile_decision_rules.TransferableBeliefModel;
@@ -275,7 +275,7 @@ public class Test {
 			System.out.println();
 			System.out.println(new TransferableBeliefModel(mtg.toMultiSinglePureStrategyGame()));
 			System.out.println();
-			System.out.println(new HurwitzCriterion(mtg.toMultiSinglePureStrategyGame(), 0.5));
+			System.out.println(new HurwiczCriterion(mtg.toMultiSinglePureStrategyGame(), 0.5));
 			System.out.println();
 			System.out.println(new GammaMaximin(mtg.toMultiSinglePureStrategyGame()));
 			System.out.println();
@@ -666,7 +666,7 @@ public class Test {
 				DOBSS dobssOriginal = new DOBSS(original);
 				dobssOriginal.solve();
 				dmsOriginal = dobssOriginal.getDefenderMixedStrategy();
-				Map<AttackerType, Target> apsOriginal = dobssOriginal.getAttackerPureStrategies();
+//				Map<AttackerType, Target> apsOriginal = dobssOriginal.getAttackerPureStrategies();
 				
 //				System.out.println("ORIGINAL RESULTS");
 //				System.out.println();
@@ -721,7 +721,7 @@ public class Test {
 				DOBSS dobssSeguaPointValue = new DOBSS(seguaPointValue);
 				dobssSeguaPointValue.solve();
 				dmsSeguaPointValue = dobssSeguaPointValue.getDefenderMixedStrategy();
-				Map<AttackerType, Target> apsSeguaPointValue = dobssSeguaPointValue.getAttackerPureStrategies();
+//				Map<AttackerType, Target> apsSeguaPointValue = dobssSeguaPointValue.getAttackerPureStrategies();
 				
 //				System.out.println("SEGUA NORMAL FORM RESULTS");
 //				System.out.println();

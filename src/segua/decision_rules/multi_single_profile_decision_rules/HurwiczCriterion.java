@@ -10,11 +10,11 @@ import segua.payoffs.payoff_single.normal_form_payoffs.DoublePayoff;
 import segua.player_pairs.PlayerPairPayoffSingle;
 import data_structures.Interval;
 
-public class HurwitzCriterion extends MultiSingleProfileDecisionRule {
+public class HurwiczCriterion extends MultiSingleProfileDecisionRule {
 	
 	private double alpha;
 	
-	public HurwitzCriterion(MultiSingleProfileGame<BBAPayoff> s, double a) throws Exception {
+	public HurwiczCriterion(MultiSingleProfileGame<BBAPayoff> s, double a) throws Exception {
 		super(s);
 		
 		if(a >= 0 && a <= 1) {
