@@ -7,14 +7,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Scanner;
 import java.util.TreeSet;
 
 import segua.AttackerType;
 import segua.PureStrategyProfile;
 import segua.Target;
 import segua.decision_rules.multi_single_profile_decision_rules.GammaMaximin;
-import segua.decision_rules.multi_single_profile_decision_rules.HurwitzCriterion;
+import segua.decision_rules.multi_single_profile_decision_rules.HurwiczCriterion;
 import segua.decision_rules.multi_single_profile_decision_rules.Maximax;
 import segua.decision_rules.multi_single_profile_decision_rules.SingleDefault;
 import segua.decision_rules.multi_single_profile_decision_rules.TransferableBeliefModel;
@@ -38,25 +37,31 @@ import data_structures.Interval;
 import data_structures.Range;
 import data_structures.ranges.NegativeRange;
 import data_structures.ranges.PositiveRange;
+import evaluation.Randomizer.IntervalRestriction;
+import evaluation.Randomizer.LotteryRestriction;
 
 public class Experiments {
 	
-	public static final String PART_2_BASE = "D:/SeGUA/part_2/";
-	public static final String PART_3_BASE = "D:/SeGUA/part_3/";
+	private final String BASE = "D:/SeGUA/";
 	
-	public static final AdvancedSet<Double> ALPHAS = new AdvancedSet<Double>(0.0, 0.2, 0.4, 0.5, 0.7, 0.9, 1.0);
+	private final AdvancedSet<Double> ALPHAS = new AdvancedSet<Double>(0.0, 0.2, 0.4, 0.5, 0.7, 0.9, 1.0);
 	
-	public static void part2Interval(int id, String range, int numTargets, int numTypes, NegativeRange negative, PositiveRange positive) throws Exception {
+	private String directory;
+	
+	private IntervalRestriction intervalRestriction;
+	private LotteryRestriction lotteryRestriction;
+	
+	public void part2Interval(int id, String range, int numTargets, int numTypes, NegativeRange negative, PositiveRange positive) throws Exception {
 		
 		MultiSingleTargetGame<BBAPayoff> originalGame = Randomizer.randomBBASingleTargetMultiGame(numTargets, numTypes, negative, positive);
 		System.out.print(".");
 		
-		PrintWriter targetsInput = new PrintWriter(PART_2_BASE + range + "/step_1a/" + id + "-interval-targets.txt", "UTF-8");
+		PrintWriter targetsInput = new PrintWriter(directory + range + "/step_1a/" + id + "-interval-targets.txt", "UTF-8");
 		targetsInput.println(originalGame.toString());
 		targetsInput.close();
 		System.out.print(".");
 		
-		PrintWriter pureStrategiesInput = new PrintWriter(PART_2_BASE + range + "/step_1b/" + id + "-interval-pure_strategies.txt", "UTF-8");
+		PrintWriter pureStrategiesInput = new PrintWriter(directory + range + "/step_1b/" + id + "-interval-pure_strategies.txt", "UTF-8");
 		pureStrategiesInput.println(originalGame.toMultiSinglePureStrategyGame().toString());
 		pureStrategiesInput.close();
 		System.out.print(".");
@@ -137,7 +142,7 @@ public class Experiments {
 			throw new Exception("invald frame: " + range);
 		}
 		
-		PrintWriter results = new PrintWriter(PART_2_BASE + range + "/step_2/" + id + "-interval.csv", "UTF-8");
+		PrintWriter results = new PrintWriter(directory + range + "/step_2/" + id + "-interval.csv", "UTF-8");
 		
 		// alter postive or negative payoff of defender or attacker and compute mixed strategy
 		int min = alter.getLeft();
@@ -183,13 +188,13 @@ public class Experiments {
 			
 			originalGame.getSecurityGames().get(type).setPayoff(focalTarget, alteredPayoffPair);
 			
-			PrintWriter inputs = new PrintWriter(PART_2_BASE + range + "/step_1c/" + id + "-" + counter + "-interval.txt", "UTF-8");
+			PrintWriter inputs = new PrintWriter(directory + range + "/step_1c/" + id + "-" + counter + "-interval.txt", "UTF-8");
 			inputs.println(originalGame);
 			inputs.close();
 			
 			MultiSingleProfileGame<NormalFormPayoff> seguaNormalForm = new SingleDefault(originalGame.toMultiSinglePureStrategyGame()).toNormalForm();
 			
-			PrintWriter inputsNormalForm = new PrintWriter(PART_2_BASE + range + "/step_1d/" + id + "-" + counter + "-interval.txt", "UTF-8");
+			PrintWriter inputsNormalForm = new PrintWriter(directory + range + "/step_1d/" + id + "-" + counter + "-interval.txt", "UTF-8");
 			inputsNormalForm.println(seguaNormalForm);
 			inputsNormalForm.close();
 			
@@ -207,17 +212,17 @@ public class Experiments {
 		
 	}
 	
-	public static void part2PointValueLottery(int id, String range, int numTargets, int numTypes, NegativeRange negative, PositiveRange positive) throws Exception {
+	public void part2PointValueLottery(int id, String range, int numTargets, int numTypes, NegativeRange negative, PositiveRange positive) throws Exception {
 		
 		MultiSingleTargetGame<BBAPayoff> originalGame = Randomizer.randomBBASingleTargetMultiGame(numTargets, numTypes, negative, positive);
 		System.out.print(".");
 		
-		PrintWriter targetsInput = new PrintWriter(PART_2_BASE + range + "/step_1a/" + id + "-point_value_lottery-targets.txt", "UTF-8");
+		PrintWriter targetsInput = new PrintWriter(directory + range + "/step_1a/" + id + "-point_value_lottery-targets.txt", "UTF-8");
 		targetsInput.println(originalGame.toString());
 		targetsInput.close();
 		System.out.print(".");
 		
-		PrintWriter pureStrategiesInput = new PrintWriter(PART_2_BASE + range + "/step_1b/" + id + "-point_value_lottery-pure_strategies.txt", "UTF-8");
+		PrintWriter pureStrategiesInput = new PrintWriter(directory + range + "/step_1b/" + id + "-point_value_lottery-pure_strategies.txt", "UTF-8");
 		pureStrategiesInput.println(originalGame.toMultiSinglePureStrategyGame().toString());
 		pureStrategiesInput.close();
 		System.out.print(".");
@@ -298,7 +303,7 @@ public class Experiments {
 			throw new Exception("invald frame: " + range);
 		}
 		
-		PrintWriter results = new PrintWriter(PART_2_BASE + range + "/step_2/" + id + "-point_value_lottery.csv", "UTF-8");
+		PrintWriter results = new PrintWriter(directory + range + "/step_2/" + id + "-point_value_lottery.csv", "UTF-8");
 		
 		// alter postive or negative payoff of defender or attacker and compute mixed strategy
 		int pointValue = Randomizer.randomInteger(frame.getLeft(), frame.getRight());
@@ -348,13 +353,13 @@ public class Experiments {
 			
 			originalGame.getSecurityGames().get(type).setPayoff(focalTarget, alteredPayoffPair);
 			
-			PrintWriter inputs = new PrintWriter(PART_2_BASE + range + "/step_1c/" + id + "-" + counter + "-point_value_lottery.txt", "UTF-8");
+			PrintWriter inputs = new PrintWriter(directory + range + "/step_1c/" + id + "-" + counter + "-point_value_lottery.txt", "UTF-8");
 			inputs.println(originalGame);
 			inputs.close();
 			
 			MultiSingleProfileGame<NormalFormPayoff> seguaNormalForm = new SingleDefault(originalGame.toMultiSinglePureStrategyGame()).toNormalForm();
 			
-			PrintWriter inputsNormalForm = new PrintWriter(PART_2_BASE + range + "/step_1d/" + id + "-" + counter + "-point_value_lottery.txt", "UTF-8");
+			PrintWriter inputsNormalForm = new PrintWriter(directory + range + "/step_1d/" + id + "-" + counter + "-point_value_lottery.txt", "UTF-8");
 			inputsNormalForm.println(seguaNormalForm);
 			inputsNormalForm.close();
 			
@@ -370,17 +375,17 @@ public class Experiments {
 		
 	}
 	
-	public static void part2IntervalLottery(int id, String range, int numTargets, int numTypes, NegativeRange negative, PositiveRange positive) throws Exception {
+	public void part2IntervalLottery(int id, String range, int numTargets, int numTypes, NegativeRange negative, PositiveRange positive) throws Exception {
 		
 		MultiSingleTargetGame<BBAPayoff> originalGame = Randomizer.randomBBASingleTargetMultiGame(numTargets, numTypes, negative, positive);
 		System.out.print(".");
 		
-		PrintWriter targetsInput = new PrintWriter(PART_2_BASE + range + "/step_1a/" + id + "-interval_lottery-targets.txt", "UTF-8");
+		PrintWriter targetsInput = new PrintWriter(directory + range + "/step_1a/" + id + "-interval_lottery-targets.txt", "UTF-8");
 		targetsInput.println(originalGame.toString());
 		targetsInput.close();
 		System.out.print(".");
 		
-		PrintWriter pureStrategiesInput = new PrintWriter(PART_2_BASE + range + "/step_1b/" + id + "-interval_lottery-pure_strategies.txt", "UTF-8");
+		PrintWriter pureStrategiesInput = new PrintWriter(directory + range + "/step_1b/" + id + "-interval_lottery-pure_strategies.txt", "UTF-8");
 		pureStrategiesInput.println(originalGame.toMultiSinglePureStrategyGame().toString());
 		pureStrategiesInput.close();
 		System.out.print(".");
@@ -464,7 +469,7 @@ public class Experiments {
 			throw new Exception("invald frame: " + range);
 		}
 		
-		PrintWriter results = new PrintWriter(PART_2_BASE + range + "/step_2/" + id + "-interval_lottery.csv", "UTF-8");
+		PrintWriter results = new PrintWriter(directory + range + "/step_2/" + id + "-interval_lottery.csv", "UTF-8");
 		
 		// alter postive or negative payoff of defender or attacker and compute mixed strategy
 		int min = alter.getLeft();
@@ -520,13 +525,13 @@ public class Experiments {
 			
 			originalGame.getSecurityGames().get(type).setPayoff(focalTarget, alteredPayoffPair);
 			
-			PrintWriter inputs = new PrintWriter(PART_2_BASE + range + "/step_1c/" + id + "-" + counter + "-interval_lottery.txt", "UTF-8");
+			PrintWriter inputs = new PrintWriter(directory + range + "/step_1c/" + id + "-" + counter + "-interval_lottery.txt", "UTF-8");
 			inputs.println(originalGame);
 			inputs.close();
 			
 			MultiSingleProfileGame<NormalFormPayoff> seguaNormalForm = new SingleDefault(originalGame.toMultiSinglePureStrategyGame()).toNormalForm();
 			
-			PrintWriter inputsNormalForm = new PrintWriter(PART_2_BASE + range + "/step_1d/" + id + "-" + counter + "-interval_lottery.txt", "UTF-8");
+			PrintWriter inputsNormalForm = new PrintWriter(directory + range + "/step_1d/" + id + "-" + counter + "-interval_lottery.txt", "UTF-8");
 			inputsNormalForm.println(seguaNormalForm);
 			inputsNormalForm.close();
 			
@@ -544,7 +549,7 @@ public class Experiments {
 		
 	}
 	
-	public static void part3Interval(int id, MultiSingleTargetGame<IntegerPayoff> pointValueGame, NegativeRange negative, PositiveRange positive) throws Exception {
+	public void part3Interval(int id, MultiSingleTargetGame<IntegerPayoff> pointValueGame, NegativeRange negative, PositiveRange positive) throws Exception {
 		
 		Map<AttackerType, SingleTargetGame<BBAPayoff>> attackerGamesNew = new HashMap<AttackerType, SingleTargetGame<BBAPayoff>>();
 		
@@ -556,7 +561,7 @@ public class Experiments {
 				PlayerPairPayoffPair<IntegerPayoff> payoff = atg.getPayoffs().get(target);
 				
 				atgNew.setPayoff(target, 
-						Randomizer.randomlyExtendToInterval(payoff, negative, positive)
+						Randomizer.randomlyExtendToInterval(payoff, negative, positive, intervalRestriction)
 //						Randomizer.randomlyExtendToFixedSizeInterval(payoff, negative, positive, a, b)
 				);
 			}
@@ -572,7 +577,7 @@ public class Experiments {
 			printAmbiguousGame("interval", id, intervalGame);
 			printNormalFormGames("interval", id, intervalGame);
 			
-			PrintWriter eus = new PrintWriter(PART_3_BASE + "step_2b-3/" + id + "-interval.csv", "UTF-8");
+			PrintWriter eus = new PrintWriter(directory + "step_2b-3/" + id + "-interval.csv", "UTF-8");
 			printExpectedUtilities(eus, id, pointValueGame, intervalGame);
 			eus.close();
 		} catch(Exception e) {
@@ -581,7 +586,7 @@ public class Experiments {
 		
 	}
 	
-	public static void part3PointValueLottery(int id, MultiSingleTargetGame<IntegerPayoff> pointValueGame, NegativeRange negative, PositiveRange positive) throws Exception {
+	public void part3PointValueLottery(int id, MultiSingleTargetGame<IntegerPayoff> pointValueGame, NegativeRange negative, PositiveRange positive) throws Exception {
 		
 		Map<AttackerType, SingleTargetGame<BBAPayoff>> attackerGamesNew = new HashMap<AttackerType, SingleTargetGame<BBAPayoff>>();
 		
@@ -593,7 +598,7 @@ public class Experiments {
 				PlayerPairPayoffPair<IntegerPayoff> payoff = atg.getPayoffs().get(target);
 				
 				atgNew.setPayoff(target, 
-						Randomizer.randomlyExtendToPointValueLottery(payoff, negative, positive)
+						Randomizer.randomlyExtendToPointValueLottery(payoff, negative, positive, lotteryRestriction)
 				);
 			}
 			attackerGamesNew.put(entry.getKey(), atgNew);
@@ -608,7 +613,7 @@ public class Experiments {
 			printAmbiguousGame("point_value_lottery", id, pointValueLotteryGame);
 			printNormalFormGames("point_value_lottery", id, pointValueLotteryGame);
 			
-			PrintWriter eus = new PrintWriter(PART_3_BASE + "step_2b-3/" + id + "-point_value_lottery.csv", "UTF-8");
+			PrintWriter eus = new PrintWriter(directory + "step_2b-3/" + id + "-point_value_lottery.csv", "UTF-8");
 			printExpectedUtilities(eus, id, pointValueGame, pointValueLotteryGame);
 			eus.close();
 		} catch(Exception e) {
@@ -617,7 +622,7 @@ public class Experiments {
 		
 	}
 	
-	public static void part3IntervalLottery(int id, MultiSingleTargetGame<IntegerPayoff> pointValueGame, NegativeRange negative, PositiveRange positive) throws Exception {
+	public void part3IntervalLottery(int id, MultiSingleTargetGame<IntegerPayoff> pointValueGame, NegativeRange negative, PositiveRange positive) throws Exception {
 		
 		Map<AttackerType, SingleTargetGame<BBAPayoff>> attackerGamesNew = new HashMap<AttackerType, SingleTargetGame<BBAPayoff>>();
 		
@@ -629,7 +634,7 @@ public class Experiments {
 				PlayerPairPayoffPair<IntegerPayoff> payoff = atg.getPayoffs().get(target);
 				
 				atgNew.setPayoff(target, 
-						Randomizer.randomlyExtendToIntervalLottery(payoff, negative, positive)
+						Randomizer.randomlyExtendToIntervalLottery(payoff, negative, positive, intervalRestriction, lotteryRestriction)
 				);
 			}
 			attackerGamesNew.put(entry.getKey(), atgNew);
@@ -644,7 +649,7 @@ public class Experiments {
 			printAmbiguousGame("interval_lottery", id, intervalLotteryGame);
 			printNormalFormGames("interval_lottery", id, intervalLotteryGame);
 			
-			PrintWriter eus = new PrintWriter(PART_3_BASE + "step_2b-3/" + id + "-interval_lottery.csv", "UTF-8");
+			PrintWriter eus = new PrintWriter(directory + "step_2b-3/" + id + "-interval_lottery.csv", "UTF-8");
 			printExpectedUtilities(eus, id, pointValueGame, intervalLotteryGame);
 			eus.close();
 		} catch(Exception e) {
@@ -653,7 +658,7 @@ public class Experiments {
 		
 	}
 	
-	public static void part3MixedAmbiguities(int id, MultiSingleTargetGame<IntegerPayoff> pointValueGame, NegativeRange negative, PositiveRange positive) throws Exception {
+	public void part3MixedAmbiguities(int id, MultiSingleTargetGame<IntegerPayoff> pointValueGame, NegativeRange negative, PositiveRange positive) throws Exception {
 		
 		Map<AttackerType, SingleTargetGame<BBAPayoff>> attackerGamesNew = new HashMap<AttackerType, SingleTargetGame<BBAPayoff>>();
 		
@@ -667,17 +672,17 @@ public class Experiments {
 				switch(Randomizer.randomInteger(0, 2)) {
 					case 0:
 						atgNew.setPayoff(target, 
-								Randomizer.randomlyExtendToInterval(payoff, negative, positive)
+								Randomizer.randomlyExtendToInterval(payoff, negative, positive, intervalRestriction)
 						);
 						break;
 					case 1:
 						atgNew.setPayoff(target, 
-								Randomizer.randomlyExtendToPointValueLottery(payoff, negative, positive)
+								Randomizer.randomlyExtendToPointValueLottery(payoff, negative, positive, lotteryRestriction)
 						);
 						break;
 					case 2:
 						atgNew.setPayoff(target, 
-								Randomizer.randomlyExtendToIntervalLottery(payoff, negative, positive)
+								Randomizer.randomlyExtendToIntervalLottery(payoff, negative, positive, intervalRestriction, lotteryRestriction)
 						);
 						break;
 					default:
@@ -696,7 +701,7 @@ public class Experiments {
 			printAmbiguousGame("mixed_ambiguities", id, mixedAmbiguitiesGame);
 			printNormalFormGames("mixed_ambiguities", id, mixedAmbiguitiesGame);
 			
-			PrintWriter eus = new PrintWriter(PART_3_BASE + "step_2b-3/" + id + "-mixed_ambiguities.csv", "UTF-8");
+			PrintWriter eus = new PrintWriter(directory + "step_2b-3/" + id + "-mixed_ambiguities.csv", "UTF-8");
 			printExpectedUtilities(eus, id, pointValueGame, mixedAmbiguitiesGame);
 			eus.close();
 		} catch(Exception e) {
@@ -705,7 +710,7 @@ public class Experiments {
 		
 	}
 	
-	public static void part3MixedLottery(int id, MultiSingleTargetGame<IntegerPayoff> pointValueGame, NegativeRange negative, PositiveRange positive) throws Exception {
+	public void part3MixedLottery(int id, MultiSingleTargetGame<IntegerPayoff> pointValueGame, NegativeRange negative, PositiveRange positive) throws Exception {
 		
 		Map<AttackerType, SingleTargetGame<BBAPayoff>> attackerGamesNew = new HashMap<AttackerType, SingleTargetGame<BBAPayoff>>();
 		
@@ -732,7 +737,7 @@ public class Experiments {
 			printAmbiguousGame("mixed_lottery", id, mixedLotteryGame);
 			printNormalFormGames("mixed_lottery", id, mixedLotteryGame);
 			
-			PrintWriter eus = new PrintWriter(PART_3_BASE + "step_2b-3/" + id + "-mixed_lottery.csv", "UTF-8");
+			PrintWriter eus = new PrintWriter(directory + "step_2b-3/" + id + "-mixed_lottery.csv", "UTF-8");
 			printExpectedUtilities(eus, id, pointValueGame, mixedLotteryGame);
 			eus.close();
 		} catch(Exception e) {
@@ -741,59 +746,59 @@ public class Experiments {
 		
 	}
 	
-	public static void printAmbiguousGame(String label, int id, MultiSingleTargetGame<BBAPayoff> targetGame) throws Exception {
+	public void printAmbiguousGame(String label, int id, MultiSingleTargetGame<BBAPayoff> targetGame) throws Exception {
 		
-		PrintWriter targets = new PrintWriter(PART_3_BASE + "step_1c/" + id + "-targets-" + label + ".txt", "UTF-8");
+		PrintWriter targets = new PrintWriter(directory + "step_1c/" + id + "-targets-" + label + ".txt", "UTF-8");
 		targets.println(targetGame.toString());
 		targets.close();
 		
 		MultiSingleProfileGame<BBAPayoff> pureStrategyGame = targetGame.toMultiSinglePureStrategyGame();
 		
-		PrintWriter pureStrategies = new PrintWriter(PART_3_BASE + "step_1d/" + id + "-pure_strategies-" + label + ".txt", "UTF-8");
+		PrintWriter pureStrategies = new PrintWriter(directory + "step_1d/" + id + "-pure_strategies-" + label + ".txt", "UTF-8");
 		pureStrategies.println(pureStrategyGame);
 		pureStrategies.close();
 		
 	}
 	
-	public static void printNormalFormGames(String label, int id, MultiSingleTargetGame<BBAPayoff> targetGame) throws Exception {
+	public void printNormalFormGames(String label, int id, MultiSingleTargetGame<BBAPayoff> targetGame) throws Exception {
 		
-		PrintWriter segua = new PrintWriter(PART_3_BASE + "step_2a/" + id + "-segua-pure_strategies-" + label + ".txt", "UTF-8");
+		PrintWriter segua = new PrintWriter(directory + "step_2a/" + id + "-segua-pure_strategies-" + label + ".txt", "UTF-8");
 		MultiSingleProfileGame<NormalFormPayoff> seguaNormalForm = new SingleDefault(targetGame.toMultiSinglePureStrategyGame()).toNormalForm();
 		segua.println(seguaNormalForm.toString());
 		segua.close();
 		
-//		PrintWriter preferenceDegree = new PrintWriter(PART_3_BASE + "step_2a/" + id + "-preference_degree-pure_strategies-" + label + ".txt", "UTF-8");
+//		PrintWriter preferenceDegree = new PrintWriter(directory + "step_2a/" + id + "-preference_degree-pure_strategies-" + label + ".txt", "UTF-8");
 //		MultiSinglePureStrategyGame<NormalFormPayoff> preferenceDegreeNormalForm = new MultiPreferenceDegree(targetGame.toMultiSinglePureStrategyGame()).toNormalForm();
 //		preferenceDegree.println(preferenceDegreeNormalForm.toString());
 //		preferenceDegree.close();
 		
-		PrintWriter tbm = new PrintWriter(PART_3_BASE + "step_2a/" + id + "-tbm-pure_strategies-" + label + ".txt", "UTF-8");
+		PrintWriter tbm = new PrintWriter(directory + "step_2a/" + id + "-tbm-pure_strategies-" + label + ".txt", "UTF-8");
 		MultiSingleProfileGame<NormalFormPayoff> tbmNormalForm = new TransferableBeliefModel(targetGame.toMultiSinglePureStrategyGame()).toNormalForm();
 		tbm.println(tbmNormalForm.toString());
 		tbm.close();
 		
 		Map<Double, MultiSingleProfileGame<NormalFormPayoff>> hurwitzNormalForms = new HashMap<Double, MultiSingleProfileGame<NormalFormPayoff>>();
 		for(Double alpha : ALPHAS) {
-			PrintWriter hutwitz = new PrintWriter(PART_3_BASE + "step_2a/" + id + "-hurwitz_criterion(alpha=" + alpha + ")-pure_strategies-" + label + ".txt", "UTF-8");
-			MultiSingleProfileGame<NormalFormPayoff> hutwitzNormalForm = new HurwitzCriterion(targetGame.toMultiSinglePureStrategyGame(), alpha).toNormalForm();
+			PrintWriter hutwitz = new PrintWriter(directory + "step_2a/" + id + "-hurwitz_criterion(alpha=" + alpha + ")-pure_strategies-" + label + ".txt", "UTF-8");
+			MultiSingleProfileGame<NormalFormPayoff> hutwitzNormalForm = new HurwiczCriterion(targetGame.toMultiSinglePureStrategyGame(), alpha).toNormalForm();
 			hurwitzNormalForms.put(alpha, hutwitzNormalForm);
 			hutwitz.println(hutwitzNormalForm.toString());
 			hutwitz.close();
 		}
 		
-		PrintWriter gammaMaximin = new PrintWriter(PART_3_BASE + "step_2a/" + id + "-gamma_maximin-pure_strategies-" + label + ".txt", "UTF-8");
+		PrintWriter gammaMaximin = new PrintWriter(directory + "step_2a/" + id + "-gamma_maximin-pure_strategies-" + label + ".txt", "UTF-8");
 		MultiSingleProfileGame<NormalFormPayoff> gammaMaximinNormalForm = new GammaMaximin(targetGame.toMultiSinglePureStrategyGame()).toNormalForm();
 		gammaMaximin.println(gammaMaximinNormalForm.toString());
 		gammaMaximin.close();
 		
-		PrintWriter maximax = new PrintWriter(PART_3_BASE + "step_2a/" + id + "-maximax-pure_strategies-" + label + ".txt", "UTF-8");
+		PrintWriter maximax = new PrintWriter(directory + "step_2a/" + id + "-maximax-pure_strategies-" + label + ".txt", "UTF-8");
 		MultiSingleProfileGame<NormalFormPayoff> maximaxNormalForm = new Maximax(targetGame.toMultiSinglePureStrategyGame()).toNormalForm();
 		maximax.println(maximaxNormalForm.toString());
 		maximax.close();
 		
 	}
 	
-	public static void printExpectedUtilities(PrintWriter eus, int id, MultiSingleTargetGame<IntegerPayoff> integerPointValueGame, MultiSingleTargetGame<BBAPayoff> targetGame) throws Exception {
+	public void printExpectedUtilities(PrintWriter eus, int id, MultiSingleTargetGame<IntegerPayoff> integerPointValueGame, MultiSingleTargetGame<BBAPayoff> targetGame) throws Exception {
 		
 		MultiSingleTargetGame<NormalFormPayoff> pointValueGame = toNormalFormGame(integerPointValueGame);
 		
@@ -843,7 +848,7 @@ public class Experiments {
 		// Hurwitz criterion results.
 		Map<Double, MultiSingleProfileGame<NormalFormPayoff>> hurwitzNormalForms = new HashMap<Double, MultiSingleProfileGame<NormalFormPayoff>>();
 		for(Double alpha : ALPHAS) {
-			MultiSingleProfileGame<NormalFormPayoff> hutwitzNormalForm = new HurwitzCriterion(targetGame.toMultiSinglePureStrategyGame(), alpha).toNormalForm();
+			MultiSingleProfileGame<NormalFormPayoff> hutwitzNormalForm = new HurwiczCriterion(targetGame.toMultiSinglePureStrategyGame(), alpha).toNormalForm();
 			hurwitzNormalForms.put(alpha, hutwitzNormalForm);
 		}
 		Map<Double, Map<Target, Double>> hurwitzDMS = new HashMap<Double, Map<Target, Double>>();
@@ -922,17 +927,17 @@ public class Experiments {
 		
 	}
 	
-	private static BigDecimal round(double d) {
+	private BigDecimal round(double d) {
 		int decimalPlaces = 5;
 //		return new BigDecimal(String.format("%." + decimalPlaces + "g", d));
 		return new BigDecimal(String.valueOf(d)).setScale(decimalPlaces, RoundingMode.HALF_UP);
 	}
 	
-	public static Map<AttackerType, Target> getAttackerStrategiesTarget(MultiSingleTargetGame<NormalFormPayoff> pointValue, Map<Target, Double> defMixedStrategy) throws Exception {
+	public Map<AttackerType, Target> getAttackerStrategiesTarget(MultiSingleTargetGame<NormalFormPayoff> pointValue, Map<Target, Double> defMixedStrategy) throws Exception {
 		return getAttackerStrategiesPureStrategy(pointValue.toMultiSinglePureStrategyGame(), defMixedStrategy);
 	}
 	
-	public static Map<AttackerType, Target> getAttackerStrategiesPureStrategy(MultiSingleProfileGame<NormalFormPayoff> pointValue, Map<Target, Double> defMixedStrategy) throws Exception {
+	public Map<AttackerType, Target> getAttackerStrategiesPureStrategy(MultiSingleProfileGame<NormalFormPayoff> pointValue, Map<Target, Double> defMixedStrategy) throws Exception {
 		
 		ArrayList<AdvancedSet<AttackerPureStrategy>> possibleStrategies = new ArrayList<AdvancedSet<AttackerPureStrategy>>();
 		
@@ -995,7 +1000,7 @@ public class Experiments {
 		return optimalAttackerPureStrategies;
 	}
 	
-	private static class AttackerPureStrategy {
+	private class AttackerPureStrategy {
 		
 		public AttackerType attackerType;
 		public Target target;
@@ -1105,7 +1110,7 @@ public class Experiments {
 		
 	}
 	
-	public static void part2() {
+	public void part2() {
 		
 		try {
 			for(int i = 0; i < 50; i++) {
@@ -1128,10 +1133,12 @@ public class Experiments {
 		
 	}
 	
-	public static void part3() {
+	public void part3(int count) {
 		
 		try {
-			for(int i = 0; i < 100; i++) {
+			System.out.println(directory);
+			
+			for(int i = 0; i < count; i++) {
 				System.out.print("i=" + i);
 				
 				int numTargets = Randomizer.randomInteger(2, 9);
@@ -1142,20 +1149,24 @@ public class Experiments {
 				MultiSingleTargetGame<IntegerPayoff> originalIntegerGame = Randomizer.randomIntegerSingleTargetMultiGame(numTargets, numTypes, negative, positive);
 				System.out.print(".");
 				
-				PrintWriter targets = new PrintWriter(PART_3_BASE + "step_1a/" + i + "-targets-point_value.txt", "UTF-8");
+				PrintWriter targets = new PrintWriter(directory + "step_1a/" + i + "-targets-point_value.txt", "UTF-8");
 				targets.println(originalIntegerGame.toString());
 				targets.close();
 				System.out.print(".");
 				
-				PrintWriter pureStrategies = new PrintWriter(PART_3_BASE + "step_1b/" + i + "-pure_strategies-point_value.txt", "UTF-8");
+				PrintWriter pureStrategies = new PrintWriter(directory + "step_1b/" + i + "-pure_strategies-point_value.txt", "UTF-8");
 				pureStrategies.println(originalIntegerGame.toMultiSinglePureStrategyGame().toString());
 				pureStrategies.close();
 				System.out.print(".");
 				
-				part3Interval(i, originalIntegerGame, negative, positive);
-				System.out.print(".");
-				part3PointValueLottery(i, originalIntegerGame, negative, positive);
-				System.out.print(".");
+				if(lotteryRestriction == LotteryRestriction.L1) {
+					part3Interval(i, originalIntegerGame, negative, positive);
+					System.out.print(".");
+				}
+				if(intervalRestriction == IntervalRestriction.I1) {
+					part3PointValueLottery(i, originalIntegerGame, negative, positive);
+					System.out.print(".");
+				}
 				part3IntervalLottery(i, originalIntegerGame, negative, positive);
 //				System.out.print(".");
 //				part3MixedAmbiguities(i, originalIntegerGame, negative, positive);
@@ -1171,31 +1182,73 @@ public class Experiments {
 		
 	}
 	
-	public static void main(String[] args) {
+	public Experiments(int part, IntervalRestriction ir, LotteryRestriction lr) throws Exception {
+		directory = BASE + "part_" + part + "/";
 		
+		intervalRestriction = ir;
+		lotteryRestriction = lr;
+		
+		switch(intervalRestriction) {
+			case I1:
+				directory += "i1";
+				break;
+			case I2:
+				directory += "i2";
+				break;
+			case I3:
+				directory += "i3";
+				break;
+			case I4:
+				directory += "i4";
+				break;
+			case I5:
+				directory += "i5";
+				break;
+			default:
+				throw new Exception("unsupported option");
+		}
+		
+		directory += "_";
+		
+		switch(lotteryRestriction) {
+			case L1:
+				directory += "l1";
+				break;
+			case L2:
+				directory += "l2";
+				break;
+			case L3:
+				directory += "l3";
+				break;
+			default:
+				throw new Exception("unsupported option");
+		}
+		
+		directory += "/";
+	}
+	
+	public static void main(String[] args) {
 		try {
-			System.out.print("Run experiment [2,3]: ");
-			Scanner in = new Scanner(System.in);
-			switch(in.nextInt()) {
-				case 1:
-					in.close();
-					throw new Exception("unimplemented option");
-				case 2:
-					part2();
-					in.close();
-					break;
-				case 3:
-					part3();
-					in.close();
-					break;
-				default:
-					in.close();
-					throw new Exception("unsupported option");
+			ArrayList<IntervalRestriction> intervalRestrictions = new ArrayList<IntervalRestriction>();
+//			intervalRestrictions.add(IntervalRestriction.I1);
+//			intervalRestrictions.add(IntervalRestriction.I2);
+//			intervalRestrictions.add(IntervalRestriction.I3);
+//			intervalRestrictions.add(IntervalRestriction.I4);
+			intervalRestrictions.add(IntervalRestriction.I5);
+			
+			ArrayList<LotteryRestriction> lotteryRestrictions = new ArrayList<LotteryRestriction>();
+//			lotteryRestrictions.add(LotteryRestriction.L1);
+			lotteryRestrictions.add(LotteryRestriction.L2);
+			lotteryRestrictions.add(LotteryRestriction.L3);
+			
+			for(IntervalRestriction ir : intervalRestrictions) {
+				for(LotteryRestriction lr : lotteryRestrictions) {
+					new Experiments(3, ir, lr).part3(100);
+				}
 			}
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
-		
 	}
 	
 }

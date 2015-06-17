@@ -29,6 +29,9 @@ import utilities.Utilities;
 
 public abstract class Randomizer {
 	
+	public static enum IntervalRestriction {I1, I2, I3, I4, I5}; // {No restriction, a=0 && b>0, b>a, a>b, a>0 && b=0};
+	public static enum LotteryRestriction {L1, L2, L3}; // {0<p<1, 0<p<0.5, 0.5<p<1};
+	
 	private static Random rand = new Random();
 	
 	public static PointValuePayoff randomPointValuePayoff(Range range) {
@@ -477,7 +480,7 @@ public abstract class Randomizer {
 		return new MultiSingleTargetGame<NormalFormPayoff>(targets, attackerTypes, attackerGames);
 	}
 	
-	public static PlayerPairPayoffPair<BBAPayoff> randomlyExtendToInterval(PlayerPairPayoffPair<IntegerPayoff> payoff, NegativeRange negative, PositiveRange positive) {
+	public static PlayerPairPayoffPair<BBAPayoff> randomlyExtendToInterval(PlayerPairPayoffPair<IntegerPayoff> payoff, NegativeRange negative, PositiveRange positive, IntervalRestriction intervalRestriction) {
 		
 		AdvancedSet<Integer> aSet = new AdvancedSet<Integer>();
 		aSet.add(Math.abs(negative.getLeft() - payoff.getDefender().getNegative().getInteger()));
@@ -493,37 +496,45 @@ public abstract class Randomizer {
 		bSet.add(Math.abs(positive.getRight() - payoff.getAttacker().getPositive().getInteger()));
 		int bMax = Utilities.min(bSet);
 		
-		// Restriction I1: No restriction.
-//		int a = Randomizer.randomInteger(1, aMax);
-//		int b = Randomizer.randomInteger(1, bMax);
-		
-		// Restriction I2: a=0, b>0.
 		int a = 0;
-		int b = Randomizer.randomInteger(1, bMax);
-		
-//		// Restriction I3: b>a.
-//		int a = 0;
-//		int b = 1;
-//		if(bMax > 1) {
-//			a = Randomizer.randomInteger(1, aMax);
-//			b = Randomizer.randomInteger(1, bMax);
-//			while(!(b > a)) {
-//				a = Randomizer.randomInteger(1, aMax);
-//				b = Randomizer.randomInteger(1, bMax);
-//			}
-//		}
-		
-		// Restriction I4: a>b.
-//		int a = 1;
-//		int b = 0;
-//		if(aMax > 1) {
-//			a = Randomizer.randomInteger(1, aMax);
-//			b = Randomizer.randomInteger(1, bMax);
-//			while(!(a > b)) {
-//				a = Randomizer.randomInteger(1, aMax);
-//				b = Randomizer.randomInteger(1, bMax);
-//			}
-//		}
+		int b = 0;
+		if(intervalRestriction == IntervalRestriction.I1) {
+			// Restriction I1: No restriction.
+			a = Randomizer.randomInteger(1, aMax);
+			b = Randomizer.randomInteger(1, bMax);
+		} else if(intervalRestriction == IntervalRestriction.I2) {
+			// Restriction I2: a=0 && b>0.
+			a = 0;
+			b = Randomizer.randomInteger(1, bMax);
+		} else if(intervalRestriction == IntervalRestriction.I3) {
+			// Restriction I3: b>a.
+			a = 0;
+			b = 1;
+			if(bMax > 1) {
+				a = Randomizer.randomInteger(1, aMax);
+				b = Randomizer.randomInteger(1, bMax);
+				while(!(b > a)) {
+					a = Randomizer.randomInteger(1, aMax);
+					b = Randomizer.randomInteger(1, bMax);
+				}
+			}
+		} else if(intervalRestriction == IntervalRestriction.I4) {
+			// Restriction I4: a>b.
+			a = 1;
+			b = 0;
+			if(aMax > 1) {
+				a = Randomizer.randomInteger(1, aMax);
+				b = Randomizer.randomInteger(1, bMax);
+				while(!(a > b)) {
+					a = Randomizer.randomInteger(1, aMax);
+					b = Randomizer.randomInteger(1, bMax);
+				}
+			}
+		} else if(intervalRestriction == IntervalRestriction.I2) {
+			// Restriction I5: a>0 && b=0.
+			a = Randomizer.randomInteger(1, aMax);
+			b = 0;
+		}
 		
 		// Extend defender and attacker payoffs to intervals.
 		return new PlayerPairPayoffPair<BBAPayoff>(
@@ -579,25 +590,27 @@ public abstract class Randomizer {
 		
 	}
 
-	public static PlayerPairPayoffPair<BBAPayoff> randomlyExtendToPointValueLottery(PlayerPairPayoffPair<IntegerPayoff> payoff, NegativeRange negative, PositiveRange positive) throws Exception {
-		
-		// Restriction L1: 0<p<1.
-//		double p = Randomizer.randomDouble(0.0, 1.0);
-//		while(p <= 0.0 || p >= 1.0) {
-//			p = Randomizer.randomDouble(0.0, 1.0);
-//		}
-		
-		// Restriction L2: 0<p<0.5.
-		double p = Randomizer.randomDouble(0.0, 0.5);
-		while(p <= 0.0 || p >= 0.5) {
+	public static PlayerPairPayoffPair<BBAPayoff> randomlyExtendToPointValueLottery(PlayerPairPayoffPair<IntegerPayoff> payoff, NegativeRange negative, PositiveRange positive, LotteryRestriction lotteryRestriction) throws Exception {
+		double p = 1;
+		if(lotteryRestriction == LotteryRestriction.L1) {
+			// Restriction L1: 0<p<1.
+			p = Randomizer.randomDouble(0.0, 1.0);
+			while(p <= 0.0 || p >= 1.0) {
+				p = Randomizer.randomDouble(0.0, 1.0);
+			}
+		} else if(lotteryRestriction == LotteryRestriction.L2) {
+			// Restriction L2: 0<p<0.5.
 			p = Randomizer.randomDouble(0.0, 0.5);
+			while(p <= 0.0 || p >= 0.5) {
+				p = Randomizer.randomDouble(0.0, 0.5);
+			}
+		} else if(lotteryRestriction == LotteryRestriction.L3) {
+			// Restriction L3: 0.5<p<1.
+			p = Randomizer.randomDouble(0.5, 1.0);
+			while(p <= 0.5 || p >= 1.0) {
+				p = Randomizer.randomDouble(0.5, 1.0);
+			}
 		}
-		
-		// Restriction L3: 0.5<p<1.
-//		double p = Randomizer.randomDouble(0.5, 1.0);
-//		while(p <= 0.5 || p >= 1.0) {
-//			p = Randomizer.randomDouble(0.5, 1.0);
-//		}
 		
 		BBA<Integer> defNegBBA = new BBA<Integer>(negative.getAdvancedSet());
 		defNegBBA.addMass(new AdvancedSet<Integer>(payoff.getDefender().getNegative().getInteger()), p);
@@ -641,7 +654,7 @@ public abstract class Randomizer {
 		
 	}
 
-	public static PlayerPairPayoffPair<BBAPayoff> randomlyExtendToIntervalLottery(PlayerPairPayoffPair<IntegerPayoff> payoff, NegativeRange negative, PositiveRange positive) throws Exception {
+	public static PlayerPairPayoffPair<BBAPayoff> randomlyExtendToIntervalLottery(PlayerPairPayoffPair<IntegerPayoff> payoff, NegativeRange negative, PositiveRange positive, IntervalRestriction intervalRestriction, LotteryRestriction lotteryRestriction) throws Exception {
 		
 		AdvancedSet<Integer> aSet = new AdvancedSet<Integer>();
 		aSet.add(Math.abs(negative.getLeft() - payoff.getDefender().getNegative().getInteger()));
@@ -657,55 +670,66 @@ public abstract class Randomizer {
 		bSet.add(Math.abs(positive.getRight() - payoff.getAttacker().getPositive().getInteger()));
 		int bMax = Utilities.min(bSet);
 		
-		// Restriction I1: No restriction.
-//		int a = Randomizer.randomInteger(1, aMax);
-//		int b = Randomizer.randomInteger(1, bMax);
-		
-		// Restriction I2: a=0, b>0.
 		int a = 0;
-		int b = Randomizer.randomInteger(1, bMax);
-		
-//		// Restriction I3: b>a.
-//		int a = 0;
-//		int b = 1;
-//		if(bMax > 1) {
-//			a = Randomizer.randomInteger(1, aMax);
-//			b = Randomizer.randomInteger(1, bMax);
-//			while(!(b > a)) {
-//				a = Randomizer.randomInteger(1, aMax);
-//				b = Randomizer.randomInteger(1, bMax);
-//			}
-//		}
-		
-		// Restriction I4: a>b.
-//		int a = 1;
-//		int b = 0;
-//		if(aMax > 1) {
-//			a = Randomizer.randomInteger(1, aMax);
-//			b = Randomizer.randomInteger(1, bMax);
-//			while(!(a > b)) {
-//				a = Randomizer.randomInteger(1, aMax);
-//				b = Randomizer.randomInteger(1, bMax);
-//			}
-//		}
-		
-		// Restriction L1: 0<p<1.
-//		double p = Randomizer.randomDouble(0.0, 1.0);
-//		while(p <= 0.0 || p >= 1.0) {
-//			p = Randomizer.randomDouble(0.0, 1.0);
-//		}
-		
-		// Restriction L2: 0<p<0.5.
-		double p = Randomizer.randomDouble(0.0, 0.5);
-		while(p <= 0.0 || p >= 0.5) {
-			p = Randomizer.randomDouble(0.0, 0.5);
+		int b = 0;
+		if(intervalRestriction == IntervalRestriction.I1) {
+			// Restriction I1: No restriction.
+			a = Randomizer.randomInteger(1, aMax);
+			b = Randomizer.randomInteger(1, bMax);
+		} else if(intervalRestriction == IntervalRestriction.I2) {
+			// Restriction I2: a=0 && b>0.
+			a = 0;
+			b = Randomizer.randomInteger(1, bMax);
+		} else if(intervalRestriction == IntervalRestriction.I3) {
+			// Restriction I3: b>a.
+			a = 0;
+			b = 1;
+			if(bMax > 1) {
+				a = Randomizer.randomInteger(1, aMax);
+				b = Randomizer.randomInteger(1, bMax);
+				while(!(b > a)) {
+					a = Randomizer.randomInteger(1, aMax);
+					b = Randomizer.randomInteger(1, bMax);
+				}
+			}
+		} else if(intervalRestriction == IntervalRestriction.I4) {
+			// Restriction I4: a>b.
+			a = 1;
+			b = 0;
+			if(aMax > 1) {
+				a = Randomizer.randomInteger(1, aMax);
+				b = Randomizer.randomInteger(1, bMax);
+				while(!(a > b)) {
+					a = Randomizer.randomInteger(1, aMax);
+					b = Randomizer.randomInteger(1, bMax);
+				}
+			}
+		} else if(intervalRestriction == IntervalRestriction.I2) {
+			// Restriction I5: a>0 && b=0.
+			a = Randomizer.randomInteger(1, aMax);
+			b = 0;
 		}
 		
-		// Restriction L3: 0.5<p<1.
-//		double p = Randomizer.randomDouble(0.5, 1.0);
-//		while(p <= 0.5 || p >= 1.0) {
-//			p = Randomizer.randomDouble(0.5, 1.0);
-//		}
+		double p = 1;
+		if(lotteryRestriction == LotteryRestriction.L1) {
+			// Restriction L1: 0<p<1.
+			p = Randomizer.randomDouble(0.0, 1.0);
+			while(p <= 0.0 || p >= 1.0) {
+				p = Randomizer.randomDouble(0.0, 1.0);
+			}
+		} else if(lotteryRestriction == LotteryRestriction.L2) {
+			// Restriction L2: 0<p<0.5.
+			p = Randomizer.randomDouble(0.0, 0.5);
+			while(p <= 0.0 || p >= 0.5) {
+				p = Randomizer.randomDouble(0.0, 0.5);
+			}
+		} else if(lotteryRestriction == LotteryRestriction.L3) {
+			// Restriction L3: 0.5<p<1.
+			p = Randomizer.randomDouble(0.5, 1.0);
+			while(p <= 0.5 || p >= 1.0) {
+				p = Randomizer.randomDouble(0.5, 1.0);
+			}
+		}
 		
 		BBA<Integer> defNegBBA = new BBA<Integer>(negative.getAdvancedSet());
 		defNegBBA.addMass(
