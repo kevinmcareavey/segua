@@ -15,7 +15,7 @@ public abstract class DecisionRule {
 	
 	public abstract MultiSecurityGame<BBAPayoff> getMultiSecurityGame();
 	
-	public abstract PlayerPairPayoffSingle<NormalFormPayoff> getNormalForm(AttackerType t, PureStrategyProfile p);
+	public abstract PlayerPairPayoffSingle<NormalFormPayoff> getNormalForm(AttackerType t, PureStrategyProfile p) throws Exception;
 	
 	public MultiSingleProfileGame<NormalFormPayoff> toNormalForm() throws Exception {
 		AdvancedSet<PureStrategyProfile> pureStrategyProfiles = getMultiSecurityGame().getPureStrategyProfiles();

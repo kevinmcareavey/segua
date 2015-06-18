@@ -1,6 +1,7 @@
 package segua.payoffs.payoff_single.normal_form_payoffs;
 
 import segua.payoffs.payoff_single.NormalFormPayoff;
+import utilities.Utilities;
 
 public class DoublePayoff extends NormalFormPayoff {
 	
@@ -12,7 +13,7 @@ public class DoublePayoff extends NormalFormPayoff {
 	
 	@Override
 	public String toString() {
-		return String.valueOf(doubleValue);
+		return Utilities.format(doubleValue);
 	}
 
 	@Override
