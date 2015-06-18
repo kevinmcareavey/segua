@@ -1,8 +1,6 @@
 package segua.multi_security_games;
 
-import java.util.Map;
-
-import segua.AttackerType;
+import segua.AttackerProbabilities;
 import segua.MultiSecurityGame;
 import segua.PureStrategyProfile;
 import segua.Target;
@@ -13,7 +11,7 @@ public abstract class MultiProfileGame<T extends PayoffSingle> extends MultiSecu
 	
 	private AdvancedSet<PureStrategyProfile> pureStrategyProfiles;
 	
-	public MultiProfileGame(AdvancedSet<PureStrategyProfile> p, Map<AttackerType, Double> a) {
+	public MultiProfileGame(AdvancedSet<PureStrategyProfile> p, AttackerProbabilities a) {
 		super(a);
 		pureStrategyProfiles = p;
 	}

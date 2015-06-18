@@ -3,6 +3,7 @@ package segua.multi_security_games.target_games;
 import java.util.HashMap;
 import java.util.Map;
 
+import segua.AttackerProbabilities;
 import segua.AttackerType;
 import segua.PureStrategyProfile;
 import segua.Target;
@@ -17,7 +18,7 @@ public class MultiSingleTargetGame<T extends PayoffSingle> extends MultiTargetGa
 	
 	private Map<AttackerType, SingleTargetGame<T>> securityGames;
 	
-	public MultiSingleTargetGame(AdvancedSet<Target> t, Map<AttackerType, Double> a, Map<AttackerType, SingleTargetGame<T>> s) {
+	public MultiSingleTargetGame(AdvancedSet<Target> t, AttackerProbabilities a, Map<AttackerType, SingleTargetGame<T>> s) {
 		super(t, a);
 		securityGames = s;
 	}

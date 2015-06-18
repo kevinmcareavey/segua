@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import segua.AttackerProbabilities;
 import segua.AttackerType;
 import segua.MixedStrategy;
 import segua.Target;
@@ -122,7 +123,7 @@ public class Test {
 			);
 			
 			AttackerType a0 = new AttackerType("a0");
-			Map<AttackerType, Double> attackerProbabilities = new HashMap<AttackerType, Double>();
+			AttackerProbabilities attackerProbabilities = new AttackerProbabilities();
 			attackerProbabilities.put(a0, 1.0);
 			Map<AttackerType, SetTargetGame<BBAPayoff>> attackerGames = new HashMap<AttackerType, SetTargetGame<BBAPayoff>>();
 			attackerGames.put(a0, tg);
@@ -164,10 +165,10 @@ public class Test {
 			
 			Target sa = new Target("SA");
 			Target pr = new Target("PR");
-//			Target sl = new Target("SL");
-//			Target vl = new Target("VL");
-//			Target h = new Target("H");
-			AdvancedSet<Target> targets = new AdvancedSet<Target>(sa, pr);//, sl, vl, h);
+			Target sl = new Target("SL");
+			Target vl = new Target("VL");
+			Target h = new Target("H");
+			AdvancedSet<Target> targets = new AdvancedSet<Target>(sa, pr, sl, vl, h);
 			
 			SingleTargetGame<BBAPayoff> tg = new SingleTargetGame<BBAPayoff>(targets);
 			
@@ -207,50 +208,50 @@ public class Test {
 					)
 			);
 			
-//			tg.setPayoff(
-//					sl, 
-//					new PlayerPairPayoffPair<BBAPayoff>(
-//							new PayoffPair<BBAPayoff>(
-//									new AbsentPayoff(negative), 
-//									new AbsentPayoff(positive)
-//							),
-//							new PayoffPair<BBAPayoff>(
-//									new PointValuePayoff(negative, -4), 
-//									new PointValuePayoff(positive, 2)
-//							)
-//					)
-//			);
-//			
-//			tg.setPayoff(
-//					vl, 
-//					new PlayerPairPayoffPair<BBAPayoff>(
-//							new PayoffPair<BBAPayoff>(
-//									new PointValuePayoff(negative, -8), 
-//									new PointValuePayoff(positive, 7)
-//							),
-//							new PayoffPair<BBAPayoff>(
-//									new PointValuePayoff(negative, -9), 
-//									new PointValuePayoff(positive, 7)
-//							)
-//					)
-//			);
-//			
-//			tg.setPayoff(
-//					h, 
-//					new PlayerPairPayoffPair<BBAPayoff>(
-//							new PayoffPair<BBAPayoff>(
-//									new PointValuePayoff(negative, -8), 
-//									new PointValuePayoff(positive, 7)
-//							),
-//							new PayoffPair<BBAPayoff>(
-//									new PointValuePayoff(negative, -9), 
-//									new PointValuePayoff(positive, 7)
-//							)
-//					)
-//			);
+			tg.setPayoff(
+					sl, 
+					new PlayerPairPayoffPair<BBAPayoff>(
+							new PayoffPair<BBAPayoff>(
+									new AbsentPayoff(negative), 
+									new AbsentPayoff(positive)
+							),
+							new PayoffPair<BBAPayoff>(
+									new PointValuePayoff(negative, -4), 
+									new PointValuePayoff(positive, 2)
+							)
+					)
+			);
+			
+			tg.setPayoff(
+					vl, 
+					new PlayerPairPayoffPair<BBAPayoff>(
+							new PayoffPair<BBAPayoff>(
+									new PointValuePayoff(negative, -8), 
+									new PointValuePayoff(positive, 7)
+							),
+							new PayoffPair<BBAPayoff>(
+									new PointValuePayoff(negative, -9), 
+									new PointValuePayoff(positive, 7)
+							)
+					)
+			);
+			
+			tg.setPayoff(
+					h, 
+					new PlayerPairPayoffPair<BBAPayoff>(
+							new PayoffPair<BBAPayoff>(
+									new PointValuePayoff(negative, -8), 
+									new PointValuePayoff(positive, 7)
+							),
+							new PayoffPair<BBAPayoff>(
+									new PointValuePayoff(negative, -9), 
+									new PointValuePayoff(positive, 7)
+							)
+					)
+			);
 			
 			AttackerType a0 = new AttackerType("a0");
-			Map<AttackerType, Double> attackerProbabilities = new HashMap<AttackerType, Double>();
+			AttackerProbabilities attackerProbabilities = new AttackerProbabilities();
 			attackerProbabilities.put(a0, 1.0);
 			Map<AttackerType, SingleTargetGame<BBAPayoff>> attackerGames = new HashMap<AttackerType, SingleTargetGame<BBAPayoff>>();
 			attackerGames.put(a0, tg);
@@ -265,37 +266,15 @@ public class Test {
 			System.out.println(spsg);
 			System.out.println();
 			
-			System.out.println("tbm:");
-			MultiSingleProfileGame<NormalFormPayoff> tbm = new TransferableBeliefModel(spsg).toNormalForm();
-			System.out.println(tbm);
+			System.out.println("normal form game:");
+			MultiSingleProfileGame<NormalFormPayoff> segua = new SingleDefault(spsg).toNormalForm();
+			System.out.println(segua);
 			System.out.println();
 			
-			DOBSS tbmDOBSS = new DOBSS(tbm);
-			tbmDOBSS.solve();
-			System.out.println("defender's mixed strategy: " + tbmDOBSS.getDefenderMixedStrategy());
-			System.out.println("attacker pure strategies: " + tbmDOBSS.getAttackerPureStrategies());
-			System.out.println();
-			
-			System.out.println("hurwicz criterion (0.5):");
-			MultiSingleProfileGame<NormalFormPayoff> hurwicz = new HurwiczCriterion(spsg, 0.5).toNormalForm();
-			System.out.println(hurwicz);
-			System.out.println();
-			
-			DOBSS hurwiczDOBSS = new DOBSS(hurwicz);
-			hurwiczDOBSS.solve();
-			System.out.println("defender's mixed strategy: " + hurwiczDOBSS.getDefenderMixedStrategy());
-			System.out.println("attacker pure strategies: " + hurwiczDOBSS.getAttackerPureStrategies());
-			System.out.println();
-			
-			System.out.println("owa:");
-			MultiSingleProfileGame<NormalFormPayoff> owa = new OWABasedModel(spsg).toNormalForm();
-			System.out.println(owa);
-			System.out.println();
-			
-			DOBSS owaDOBSS = new DOBSS(owa);
-			owaDOBSS.solve();
-			System.out.println("defender's mixed strategy: " + owaDOBSS.getDefenderMixedStrategy());
-			System.out.println("attacker pure strategies: " + owaDOBSS.getAttackerPureStrategies());
+			DOBSS dobss = new DOBSS(segua);
+			dobss.solve();
+			System.out.println("defender's mixed strategy: " + dobss.getDefenderMixedStrategy());
+			System.out.println("attacker pure strategies: " + dobss.getAttackerPureStrategies());
 			System.out.println();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -308,7 +287,7 @@ public class Test {
 		try {
 			SingleTargetGame<BBAPayoff> tg = Randomizer.randomBBASingleTargetGame(2, new NegativeRange(-9, 0), new PositiveRange(0, 9));
 			AttackerType a0 = new AttackerType("a0");
-			Map<AttackerType, Double> attackerProbabilities = new HashMap<AttackerType, Double>();
+			AttackerProbabilities attackerProbabilities = new AttackerProbabilities();
 			attackerProbabilities.put(a0, 1.0);
 			Map<AttackerType, SingleTargetGame<BBAPayoff>> attackerGames = new HashMap<AttackerType, SingleTargetGame<BBAPayoff>>();
 			attackerGames.put(a0, tg);
@@ -341,7 +320,7 @@ public class Test {
 			
 			AttackerType a1 = new AttackerType("a1");
 			AttackerType a2 = new AttackerType("a2");
-			Map<AttackerType, Double> attackerProbabilities = new HashMap<AttackerType, Double>();
+			AttackerProbabilities attackerProbabilities = new AttackerProbabilities();
 			attackerProbabilities.put(a1, 0.6128708019969);
 			attackerProbabilities.put(a2, 0.387129198003099);
 			
@@ -396,7 +375,7 @@ public class Test {
 			AdvancedSet<Target> targets = new AdvancedSet<Target>(t1, t2, t3, t4);
 			
 			AttackerType a1 = new AttackerType("a1");
-			Map<AttackerType, Double> attackerProbabilities = new HashMap<AttackerType, Double>();
+			AttackerProbabilities attackerProbabilities = new AttackerProbabilities();
 			attackerProbabilities.put(a1, 1.0);
 			
 			/*
@@ -514,7 +493,7 @@ public class Test {
 //			AttackerType a1 = new AttackerType("a1");
 //			AttackerType a2 = new AttackerType("a2");
 //			AttackerType a3 = new AttackerType("a3");
-//			Map<AttackerType, Double> attackerProbabilities = new HashMap<AttackerType, Double>();
+//			AttackerProbabilities attackerProbabilities = new HashAttackerProbabilities();
 //			attackerProbabilities.put(a0, 0.058461686840538395);
 //			attackerProbabilities.put(a1, 0.0679531805147269);
 //			attackerProbabilities.put(a2, 0.3082247326671632);
@@ -800,7 +779,7 @@ public class Test {
 			AttackerType a1 = new AttackerType("a1");
 			AttackerType a2 = new AttackerType("a2");
 			AttackerType a3 = new AttackerType("a3");
-			Map<AttackerType, Double> attackerProbabilities = new HashMap<AttackerType, Double>();
+			AttackerProbabilities attackerProbabilities = new AttackerProbabilities();
 			attackerProbabilities.put(a0, 0.058461686840538395);
 			attackerProbabilities.put(a1, 0.0679531805147269);
 			attackerProbabilities.put(a2, 0.3082247326671632);
@@ -927,9 +906,181 @@ public class Test {
 		
 	}
 	
+	public static void owa() {
+		
+		try {
+			NegativeRange negative = new NegativeRange(-9, 0);
+			PositiveRange positive = new PositiveRange(0, 9);
+			
+			Target t1 = new Target("t1");
+			Target t2 = new Target("t2");
+			Target t3 = new Target("t3");
+			AdvancedSet<Target> targets = new AdvancedSet<Target>(t1, t2, t3);
+			
+			AttackerType a1 = new AttackerType("a1");
+			AttackerType a2 = new AttackerType("a2");
+			AttackerProbabilities attackerProbabilities = new AttackerProbabilities();
+			attackerProbabilities.put(a1, 0.6128708019969);
+			attackerProbabilities.put(a2, 0.387129198003099);
+			
+			/*
+			 * ORIGINAL POINT-VALUE GAME
+			 */
+			SingleTargetGame<BBAPayoff> stg1PointValue = new SingleTargetGame<BBAPayoff>(targets);
+			
+			stg1PointValue.setPayoff(
+					t1,
+					new PlayerPairPayoffPair<BBAPayoff>(
+							new PayoffPair<BBAPayoff>(
+									new IntervalPayoff(negative, new Interval(-7, -3)), 
+									new IntervalPayoff(positive, new Interval(2, 6))
+							),
+							new PayoffPair<BBAPayoff>(
+									new PointValuePayoff(negative, -7), 
+									new PointValuePayoff(positive, 5)
+							)
+					)
+			);
+			
+			BBA<Integer> negativeBBA = new BBA<Integer>(negative.getAdvancedSet());
+			negativeBBA.addMass(new Interval(-8, -7).getAdvancedSet(), 0.8);
+			negativeBBA.addMass(new Interval(-9, 0).getAdvancedSet(), 0.2);
+			
+			BBA<Integer> positiveBBA = new BBA<Integer>(positive.getAdvancedSet());
+			positiveBBA.addMass(new Interval(5, 6).getAdvancedSet(), 0.8);
+			positiveBBA.addMass(new Interval(0, 9).getAdvancedSet(), 0.2);
+			
+			stg1PointValue.setPayoff(
+					t2, 
+					new PlayerPairPayoffPair<BBAPayoff>(
+							new PayoffPair<BBAPayoff>(
+									new AmbiguityLotteryPayoff(negative, negativeBBA), 
+									new AmbiguityLotteryPayoff(positive, positiveBBA)
+							),
+							new PayoffPair<BBAPayoff>(
+									new PointValuePayoff(negative, -5), 
+									new PointValuePayoff(positive, 3)
+							)
+					)
+			);
+			
+			stg1PointValue.setPayoff(
+					t3, 
+					new PlayerPairPayoffPair<BBAPayoff>(
+							new PayoffPair<BBAPayoff>(
+									new PointValuePayoff(negative, -8), 
+									new PointValuePayoff(positive, 7)
+							),
+							new PayoffPair<BBAPayoff>(
+									new PointValuePayoff(negative, -9), 
+									new PointValuePayoff(positive, 7)
+							)
+					)
+			);
+			
+			SingleTargetGame<BBAPayoff> stg2PointValue = new SingleTargetGame<BBAPayoff>(targets);
+			
+			stg2PointValue.setPayoff(
+					t1, 
+					new PlayerPairPayoffPair<BBAPayoff>(
+							new PayoffPair<BBAPayoff>(
+									new AbsentPayoff(negative), 
+									new AbsentPayoff(positive)
+							),
+							new PayoffPair<BBAPayoff>(
+									new PointValuePayoff(negative, -4), 
+									new PointValuePayoff(positive, 2)
+							)
+					)
+			);
+			
+			stg2PointValue.setPayoff(
+					t2, 
+					new PlayerPairPayoffPair<BBAPayoff>(
+							new PayoffPair<BBAPayoff>(
+									new PointValuePayoff(negative, -8), 
+									new PointValuePayoff(positive, 7)
+							),
+							new PayoffPair<BBAPayoff>(
+									new PointValuePayoff(negative, -9), 
+									new PointValuePayoff(positive, 7)
+							)
+					)
+			);
+			
+			stg2PointValue.setPayoff(
+					t3, 
+					new PlayerPairPayoffPair<BBAPayoff>(
+							new PayoffPair<BBAPayoff>(
+									new PointValuePayoff(negative, -9), 
+									new PointValuePayoff(positive, 0)
+							),
+							new PayoffPair<BBAPayoff>(
+									new PointValuePayoff(negative, -9), 
+									new PointValuePayoff(positive, 6)
+							)
+					)
+			);
+			
+			Map<AttackerType, SingleTargetGame<BBAPayoff>> attackerGamesPointValue = new HashMap<AttackerType, SingleTargetGame<BBAPayoff>>();
+			attackerGamesPointValue.put(a1, stg1PointValue);
+			attackerGamesPointValue.put(a2, stg2PointValue);
+			
+			MultiSingleTargetGame<BBAPayoff> mtg = new MultiSingleTargetGame<BBAPayoff>(
+					targets,
+					attackerProbabilities,
+					attackerGamesPointValue);
+			
+			System.out.println("target game:");
+			System.out.println(mtg);
+			System.out.println();
+			
+			System.out.println("pure strategy game:");
+			MultiSingleProfileGame<BBAPayoff> spsg = mtg.toMultiSinglePureStrategyGame();
+			System.out.println(spsg);
+			System.out.println();
+			
+			System.out.println("tbm:");
+			MultiSingleProfileGame<NormalFormPayoff> tbm = new TransferableBeliefModel(spsg).toNormalForm();
+			System.out.println(tbm);
+			System.out.println();
+			
+			DOBSS tbmDOBSS = new DOBSS(tbm);
+			tbmDOBSS.solve();
+			System.out.println("defender's mixed strategy: " + tbmDOBSS.getDefenderMixedStrategy());
+			System.out.println("attacker pure strategies: " + tbmDOBSS.getAttackerPureStrategies());
+			System.out.println();
+			
+			System.out.println("hurwicz criterion (0.5):");
+			MultiSingleProfileGame<NormalFormPayoff> hurwicz = new HurwiczCriterion(spsg, 0.5).toNormalForm();
+			System.out.println(hurwicz);
+			System.out.println();
+			
+			DOBSS hurwiczDOBSS = new DOBSS(hurwicz);
+			hurwiczDOBSS.solve();
+			System.out.println("defender's mixed strategy: " + hurwiczDOBSS.getDefenderMixedStrategy());
+			System.out.println("attacker pure strategies: " + hurwiczDOBSS.getAttackerPureStrategies());
+			System.out.println();
+			
+			System.out.println("owa:");
+			MultiSingleProfileGame<NormalFormPayoff> owa = new OWABasedModel(spsg).toNormalForm();
+			System.out.println(owa);
+			System.out.println();
+			
+			DOBSS owaDOBSS = new DOBSS(owa);
+			owaDOBSS.solve();
+			System.out.println("defender's mixed strategy: " + owaDOBSS.getDefenderMixedStrategy());
+			System.out.println("attacker pure strategies: " + owaDOBSS.getAttackerPureStrategies());
+			System.out.println();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
 	public static void main(String[] args) {
 //		example();
-		singleTargetGame();
+//		singleTargetGame();
 //		random();
 //		testDOBSS();
 //		milindExample();
@@ -938,6 +1089,7 @@ public class Test {
 //		completeVsIncomplete();
 //		randomCompleteVsIncomplete();
 //		multiDecisionRule();
+		owa();
 	}
 	
 }

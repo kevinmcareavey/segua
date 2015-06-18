@@ -1,6 +1,5 @@
 package segua;
 
-import java.util.Map;
 import java.util.Map.Entry;
 
 import segua.payoffs.PayoffSingle;
@@ -8,13 +7,13 @@ import data_structures.AdvancedSet;
 
 public abstract class MultiSecurityGame<T extends PayoffSingle> {
 	
-	private Map<AttackerType, Double> attackerProbabilities;
+	private AttackerProbabilities attackerProbabilities;
 	
-	public MultiSecurityGame(Map<AttackerType, Double> a) {
+	public MultiSecurityGame(AttackerProbabilities a) {
 		attackerProbabilities = a;
 	}
 	
-	public Map<AttackerType, Double> getAttackerProbabilities() {
+	public AttackerProbabilities getAttackerProbabilities() {
 		return attackerProbabilities;
 	}
 	

@@ -9,6 +9,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeSet;
 
+import segua.AttackerProbabilities;
 import segua.AttackerType;
 import segua.MixedStrategy;
 import segua.PureStrategyProfile;
@@ -70,7 +71,7 @@ public class Experiments {
 		System.out.print(".");
 		
 		// Get random attacker type.
-		Map<AttackerType, Double> attackerTypes = originalGame.getAttackerProbabilities();
+		AttackerProbabilities attackerTypes = originalGame.getAttackerProbabilities();
 		int i = 0;
 		int selectedType = Randomizer.randomInteger(0, attackerTypes.size() - 1);
 		AttackerType type = null;
@@ -231,7 +232,7 @@ public class Experiments {
 		System.out.print(".");
 		
 		// Get random attacker type.
-		Map<AttackerType, Double> attackerTypes = originalGame.getAttackerProbabilities();
+		AttackerProbabilities attackerTypes = originalGame.getAttackerProbabilities();
 		int i = 0;
 		int selectedType = Randomizer.randomInteger(0, attackerTypes.size() - 1);
 		AttackerType type = null;
@@ -394,7 +395,7 @@ public class Experiments {
 		System.out.print(".");
 		
 		// Get random attacker type.
-		Map<AttackerType, Double> attackerTypes = originalGame.getAttackerProbabilities();
+		AttackerProbabilities attackerTypes = originalGame.getAttackerProbabilities();
 		int i = 0;
 		int selectedType = Randomizer.randomInteger(0, attackerTypes.size() - 1);
 		AttackerType type = null;

@@ -10,6 +10,7 @@ import data_structures.Interval;
 import data_structures.Range;
 import data_structures.ranges.NegativeRange;
 import data_structures.ranges.PositiveRange;
+import segua.AttackerProbabilities;
 import segua.AttackerType;
 import segua.Target;
 import segua.multi_security_games.target_games.MultiSingleTargetGame;
@@ -249,8 +250,8 @@ public abstract class Randomizer {
 		return types;
 	}
 	
-	public static Map<AttackerType, Double> getAttackerTypeProbabilityDistribution(AdvancedSet<AttackerType> types) {
-		Map<AttackerType, Double> attackerTypes = new HashMap<AttackerType, Double>();
+	public static AttackerProbabilities getAttackerTypeProbabilityDistribution(AdvancedSet<AttackerType> types) {
+		AttackerProbabilities attackerTypes = new AttackerProbabilities();
 		double remaining = 1;
 		int i = 0;
 		int count = types.size();
@@ -272,7 +273,7 @@ public abstract class Randomizer {
 	public static MultiSingleTargetGame<BBAPayoff> randomBBASingleTargetMultiGame(int numTargets, int numTypes, NegativeRange negative, PositiveRange positive) throws Exception {
 		AdvancedSet<Target> targets = getTargetSet(numTargets);
 		AdvancedSet<AttackerType> types = getAttackerTypeSet(numTypes);
-		Map<AttackerType, Double> attackerTypes = getAttackerTypeProbabilityDistribution(types);
+		AttackerProbabilities attackerTypes = getAttackerTypeProbabilityDistribution(types);
 		
 		Map<AttackerType, SingleTargetGame<BBAPayoff>> attackerGames = new HashMap<AttackerType, SingleTargetGame<BBAPayoff>>();
 		
@@ -349,7 +350,7 @@ public abstract class Randomizer {
 	public static MultiSingleTargetGame<IntegerPayoff> randomIntegerSingleTargetMultiGame(int numTargets, int numTypes, NegativeRange negative, PositiveRange positive) throws Exception {
 		AdvancedSet<Target> targets = getTargetSet(numTargets);
 		AdvancedSet<AttackerType> types = getAttackerTypeSet(numTypes);
-		Map<AttackerType, Double> attackerTypes = getAttackerTypeProbabilityDistribution(types);
+		AttackerProbabilities attackerTypes = getAttackerTypeProbabilityDistribution(types);
 		
 		Map<AttackerType, SingleTargetGame<IntegerPayoff>> attackerGames = new HashMap<AttackerType, SingleTargetGame<IntegerPayoff>>();
 		
@@ -385,7 +386,7 @@ public abstract class Randomizer {
 	public static MultiSingleTargetGame<IntegerPayoff> randomIntegerSingleTargetMultiGameNew(int numTargets, int numTypes, NegativeRange negative, PositiveRange positive) throws Exception {
 		AdvancedSet<Target> targets = getTargetSet(numTargets);
 		AdvancedSet<AttackerType> types = getAttackerTypeSet(numTypes);
-		Map<AttackerType, Double> attackerTypes = getAttackerTypeProbabilityDistribution(types);
+		AttackerProbabilities attackerTypes = getAttackerTypeProbabilityDistribution(types);
 		
 		Map<AttackerType, SingleTargetGame<IntegerPayoff>> attackerGames = new HashMap<AttackerType, SingleTargetGame<IntegerPayoff>>();
 		
@@ -447,7 +448,7 @@ public abstract class Randomizer {
 	public static MultiSingleTargetGame<NormalFormPayoff> randomNormalFormSingleTargetMultiGame(int numTargets, int numTypes, NegativeRange negative, PositiveRange positive) throws Exception {
 		AdvancedSet<Target> targets = getTargetSet(numTargets);
 		AdvancedSet<AttackerType> types = getAttackerTypeSet(numTypes);
-		Map<AttackerType, Double> attackerTypes = getAttackerTypeProbabilityDistribution(types);
+		AttackerProbabilities attackerTypes = getAttackerTypeProbabilityDistribution(types);
 		
 		Map<AttackerType, SingleTargetGame<NormalFormPayoff>> attackerGames = new HashMap<AttackerType, SingleTargetGame<NormalFormPayoff>>();
 		

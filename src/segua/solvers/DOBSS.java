@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import segua.AttackerProbabilities;
 import segua.AttackerType;
 import segua.MixedStrategy;
 import segua.PureStrategyProfile;
@@ -65,7 +66,7 @@ public class DOBSS extends Solver {
 	public DOBSS(MultiSingleProfileGame<NormalFormPayoff> sg) {
 		
 		try {
-			Map<AttackerType, Double> attackerTypeProbabilities = sg.getAttackerProbabilities();
+			AttackerProbabilities attackerTypeProbabilities = sg.getAttackerProbabilities();
 			AdvancedSet<Target> strategies = sg.getTargets();
 			
 			L = attackerTypeProbabilities.size(); // Type of attacker
