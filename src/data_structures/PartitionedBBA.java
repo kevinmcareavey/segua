@@ -4,13 +4,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import utilities.Utilities;
+
 public class PartitionedBBA<T, U> {
-	
+
 	private class Pair {
-		
+
 		private T left;
 		private U right;
-		
+
 		public Pair(T t, U u) {
 			left = t;
 			right = u;
@@ -67,26 +69,26 @@ public class PartitionedBBA<T, U> {
 		private PartitionedBBA<T, U> getOuterType() {
 			return PartitionedBBA.this;
 		}
-		
+
 	}
-	
+
 	private AdvancedSet<T> partitioner;
 	private AdvancedSet<U> framePartition;
 	private Map<T, Map<AdvancedSet<U>, Double>> massesPartition;
 	private double frameMass;
-	
+
 	public PartitionedBBA(AdvancedSet<T> p, AdvancedSet<U> f) {
 		partitioner = p;
 		framePartition = f;
-		
+
 		massesPartition = new HashMap<T, Map<AdvancedSet<U>, Double>>();
 		for(T type : partitioner) {
 			massesPartition.put(type, new HashMap<AdvancedSet<U>, Double>());
 		}
-		
+
 		frameMass = 0;
 	}
-	
+
 	public AdvancedSet<Pair> getFrame() {
 		AdvancedSet<Pair> pairFrame = new AdvancedSet<Pair>();
 		for(T t : partitioner) {
@@ -96,7 +98,7 @@ public class PartitionedBBA<T, U> {
 		}
 		return pairFrame;
 	}
-	
+
 	public Map<AdvancedSet<Pair>, Double> getMasses() {
 		Map<AdvancedSet<Pair>, Double> pairMasses = new HashMap<AdvancedSet<Pair>, Double>();
 		for(Entry<T, Map<AdvancedSet<U>, Double>> entryOuter : massesPartition.entrySet()) {
@@ -117,12 +119,12 @@ public class PartitionedBBA<T, U> {
 		}
 		return pairMasses;
 	}
-	
+
 	public void setMass(T t, AdvancedSet<U> subset, double value) {
 		if(value < 0 || value > 1) {
 			throw new IllegalArgumentException("The mass value must be in the range [0, 1].");
 		}
-		
+
 		if(!subset.subsetOf(framePartition)) {
 			throw new IllegalArgumentException("The input must be a subset of the frame of discernment.");
 		}
@@ -133,116 +135,116 @@ public class PartitionedBBA<T, U> {
 			massesPartition.get(t).put(subset, value);
 		}
 	}
-	
+
 	public void setFrameMass(double value) {
 		if(value < 0 || value > 1) {
 			throw new IllegalArgumentException("The mass value must be in the range [0, 1].");
 		}
-		
+
 		frameMass = value;
 	}
-	
+
 	public double getMass(T t, AdvancedSet<U> subset) {
-        double result = 0;
-        
-        if(massesPartition.get(t).containsKey(subset)) {
-        	result = massesPartition.get(t).get(subset);
-        }
-        
-        return result;
-    }
-	
+		double result = 0;
+
+		if(massesPartition.get(t).containsKey(subset)) {
+			result = massesPartition.get(t).get(subset);
+		}
+
+		return result;
+	}
+
 	public double getFrameMass() {
-        return frameMass;
-    }
-	
+		return frameMass;
+	}
+
 	public double getBelief(T t, AdvancedSet<U> subset) {
 		double sum = frameMass;
-        
-        for(Map.Entry<AdvancedSet<U>, Double> entry : massesPartition.get(t).entrySet()) {
-        	
-        	AdvancedSet<U> subsetFocal = entry.getKey();
-        	
-        	if(subsetFocal.subsetOf(subset)) {
-        		double mass = entry.getValue();
-        		sum += mass;
-        	}
-            
-        }
-        
-        return sum;
-    }
-	
+
+		for(Map.Entry<AdvancedSet<U>, Double> entry : massesPartition.get(t).entrySet()) {
+
+			AdvancedSet<U> subsetFocal = entry.getKey();
+
+			if(subsetFocal.subsetOf(subset)) {
+				double mass = entry.getValue();
+				sum += mass;
+			}
+
+		}
+
+		return sum;
+	}
+
 	public double getPlausibility(T t, AdvancedSet<U> subset) {
 		double sum = frameMass;
-        
-        for(Map.Entry<AdvancedSet<U>, Double> outer : massesPartition.get(t).entrySet()) {
-        	
-        	AdvancedSet<U> subsetFocal = outer.getKey();
-        	
-        	if(subset.intersects(subsetFocal)) {
-    			double mass = outer.getValue();
-    			sum += mass;
-    		}
-        	
-        }
-        
-        return sum;
-    }
-	
+
+		for(Map.Entry<AdvancedSet<U>, Double> outer : massesPartition.get(t).entrySet()) {
+
+			AdvancedSet<U> subsetFocal = outer.getKey();
+
+			if(subset.intersects(subsetFocal)) {
+				double mass = outer.getValue();
+				sum += mass;
+			}
+
+		}
+
+		return sum;
+	}
+
 	public double getAmbiguityDegree(T t) {
-        double sum = frameMass * log(partitioner.size() * framePartition.size(), 2);
-        
-        for(Map.Entry<AdvancedSet<U>, Double> outer : massesPartition.get(t).entrySet()) {
-        	
-        	AdvancedSet<U> subsetFocal = outer.getKey();
-    		double mass = outer.getValue();
-    		sum += mass * log(subsetFocal.size(), 2);
-            
-        }
-        
-        return sum / log(partitioner.size() * framePartition.size(), 2);
-    }
-	
+		double sum = frameMass * log(partitioner.size() * framePartition.size(), 2);
+
+		for(Map.Entry<AdvancedSet<U>, Double> outer : massesPartition.get(t).entrySet()) {
+
+			AdvancedSet<U> subsetFocal = outer.getKey();
+			double mass = outer.getValue();
+			sum += mass * log(subsetFocal.size(), 2);
+
+		}
+
+		return sum / log(partitioner.size() * framePartition.size(), 2);
+	}
+
 	public double getAmbiguityDegree(T t, AdvancedSet<U> subset) {
-        double sum = frameMass * log(partitioner.size() * framePartition.size(), 2);
-        
-        for(Map.Entry<AdvancedSet<U>, Double> outer : massesPartition.get(t).entrySet()) {
-        	
-        	AdvancedSet<U> subsetFocal = outer.getKey();
-        	
-        	if(subset.intersects(subsetFocal)) {
-        		double mass = outer.getValue();
-        		sum += mass * log(subsetFocal.size(), 2);
-        	}
-            
-        }
-        
-        return sum / log(partitioner.size() * framePartition.size(), 2);
-    }
-	
+		double sum = frameMass * log(partitioner.size() * framePartition.size(), 2);
+
+		for(Map.Entry<AdvancedSet<U>, Double> outer : massesPartition.get(t).entrySet()) {
+
+			AdvancedSet<U> subsetFocal = outer.getKey();
+
+			if(subset.intersects(subsetFocal)) {
+				double mass = outer.getValue();
+				sum += mass * log(subsetFocal.size(), 2);
+			}
+
+		}
+
+		return sum / log(partitioner.size() * framePartition.size(), 2);
+	}
+
 	public double getPointValuedBelief(T t, AdvancedSet<U> subset) {
 		double belief = getBelief(t, subset);
 		return (2 * belief + (1 - getAmbiguityDegree(t, subset)) * (getPlausibility(t, subset) - belief)) / 2;
 	}
-	
+
 	public boolean isValid() {
 		boolean result = false;
 		double sum = sum();
-		
+
 		double deviation = 1e-10;
-		
+
 		if(sum >= 1 - deviation && sum <= 1 + deviation) {
 			result = true;
 		}
-		
+
 		return result;
 	}
-	
+
 	private static double log(int i, int base) {
-	    return Math.log(i) / Math.log(base);
+		return Math.log(i) / Math.log(base);
 	}
-	
+
 	public double sum() {
 		double sum = frameMass;
 		for(Entry<T, Map<AdvancedSet<U>, Double>> entryOuter : massesPartition.entrySet()) {
@@ -252,31 +254,25 @@ public class PartitionedBBA<T, U> {
 		}
 		return sum;
 	}
-	
+
 	@Override
 	public String toString() {
 		String output = "{";
 		String delim = "";
-		
 		for(Entry<T, Map<AdvancedSet<U>, Double>> entryOuter : massesPartition.entrySet()) {
 			T type = entryOuter.getKey();
-	        for(Map.Entry<AdvancedSet<U>, Double> entryInner : entryOuter.getValue().entrySet()) {
-	        	
-        		AdvancedSet<Pair> focalSet = new AdvancedSet<Pair>();
-        		for(U psp : entryInner.getKey()) {
-        			focalSet.add(new Pair(type, psp));
-        		}
-	        	
-	        	output += delim + "m(" + focalSet.toString() + ") = " + String.format("%.2f", entryInner.getValue());
-	        	delim = ", ";
-	        	
-	        }
+			for(Map.Entry<AdvancedSet<U>, Double> entryInner : entryOuter.getValue().entrySet()) {
+				AdvancedSet<Pair> focalSet = new AdvancedSet<Pair>();
+				for(U psp : entryInner.getKey()) {
+					focalSet.add(new Pair(type, psp));
+				}
+				output += delim + "m(" + focalSet.toString() + ") = " + Utilities.format(entryInner.getValue());
+				delim = ", ";
+			}
 		}
-		
-		output += delim + "m(...) = " + String.format("%.2f", frameMass);
-        output += "}";
-        
-        return output;
+		output += delim + "m(...) = " + Utilities.format(frameMass);
+		output += "}";
+		return output;
 	}
 
 }
