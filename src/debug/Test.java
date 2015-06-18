@@ -5,11 +5,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import segua.AttackerType;
+import segua.MixedStrategy;
 import segua.Target;
 import segua.decision_rules.multi_set_profile_decision_rules.SetDefault;
 import segua.decision_rules.multi_single_profile_decision_rules.GammaMaximin;
 import segua.decision_rules.multi_single_profile_decision_rules.HurwiczCriterion;
 import segua.decision_rules.multi_single_profile_decision_rules.Maximax;
+import segua.decision_rules.multi_single_profile_decision_rules.OWABasedModel;
 import segua.decision_rules.multi_single_profile_decision_rules.SingleDefault;
 import segua.decision_rules.multi_single_profile_decision_rules.TransferableBeliefModel;
 import segua.multi_security_games.profile_games.MultiSetProfileGame;
@@ -162,10 +164,10 @@ public class Test {
 			
 			Target sa = new Target("SA");
 			Target pr = new Target("PR");
-			Target sl = new Target("SL");
-			Target vl = new Target("VL");
-			Target h = new Target("H");
-			AdvancedSet<Target> targets = new AdvancedSet<Target>(sa, pr, sl, vl, h);
+//			Target sl = new Target("SL");
+//			Target vl = new Target("VL");
+//			Target h = new Target("H");
+			AdvancedSet<Target> targets = new AdvancedSet<Target>(sa, pr);//, sl, vl, h);
 			
 			SingleTargetGame<BBAPayoff> tg = new SingleTargetGame<BBAPayoff>(targets);
 			
@@ -205,52 +207,96 @@ public class Test {
 					)
 			);
 			
-			tg.setPayoff(
-					sl, 
-					new PlayerPairPayoffPair<BBAPayoff>(
-							new PayoffPair<BBAPayoff>(
-									new AbsentPayoff(negative), 
-									new AbsentPayoff(positive)
-							),
-							new PayoffPair<BBAPayoff>(
-									new PointValuePayoff(negative, -4), 
-									new PointValuePayoff(positive, 2)
-							)
-					)
-			);
+//			tg.setPayoff(
+//					sl, 
+//					new PlayerPairPayoffPair<BBAPayoff>(
+//							new PayoffPair<BBAPayoff>(
+//									new AbsentPayoff(negative), 
+//									new AbsentPayoff(positive)
+//							),
+//							new PayoffPair<BBAPayoff>(
+//									new PointValuePayoff(negative, -4), 
+//									new PointValuePayoff(positive, 2)
+//							)
+//					)
+//			);
+//			
+//			tg.setPayoff(
+//					vl, 
+//					new PlayerPairPayoffPair<BBAPayoff>(
+//							new PayoffPair<BBAPayoff>(
+//									new PointValuePayoff(negative, -8), 
+//									new PointValuePayoff(positive, 7)
+//							),
+//							new PayoffPair<BBAPayoff>(
+//									new PointValuePayoff(negative, -9), 
+//									new PointValuePayoff(positive, 7)
+//							)
+//					)
+//			);
+//			
+//			tg.setPayoff(
+//					h, 
+//					new PlayerPairPayoffPair<BBAPayoff>(
+//							new PayoffPair<BBAPayoff>(
+//									new PointValuePayoff(negative, -8), 
+//									new PointValuePayoff(positive, 7)
+//							),
+//							new PayoffPair<BBAPayoff>(
+//									new PointValuePayoff(negative, -9), 
+//									new PointValuePayoff(positive, 7)
+//							)
+//					)
+//			);
 			
-			tg.setPayoff(
-					vl, 
-					new PlayerPairPayoffPair<BBAPayoff>(
-							new PayoffPair<BBAPayoff>(
-									new PointValuePayoff(negative, -8), 
-									new PointValuePayoff(positive, 7)
-							),
-							new PayoffPair<BBAPayoff>(
-									new PointValuePayoff(negative, -9), 
-									new PointValuePayoff(positive, 7)
-							)
-					)
-			);
+			AttackerType a0 = new AttackerType("a0");
+			Map<AttackerType, Double> attackerProbabilities = new HashMap<AttackerType, Double>();
+			attackerProbabilities.put(a0, 1.0);
+			Map<AttackerType, SingleTargetGame<BBAPayoff>> attackerGames = new HashMap<AttackerType, SingleTargetGame<BBAPayoff>>();
+			attackerGames.put(a0, tg);
+			MultiSingleTargetGame<BBAPayoff> mtg = new MultiSingleTargetGame<BBAPayoff>(targets, attackerProbabilities, attackerGames);
 			
-			tg.setPayoff(
-					h, 
-					new PlayerPairPayoffPair<BBAPayoff>(
-							new PayoffPair<BBAPayoff>(
-									new PointValuePayoff(negative, -8), 
-									new PointValuePayoff(positive, 7)
-							),
-							new PayoffPair<BBAPayoff>(
-									new PointValuePayoff(negative, -9), 
-									new PointValuePayoff(positive, 7)
-							)
-					)
-			);
-			
-			System.out.println(tg);
+			System.out.println("target set game:");
+			System.out.println(mtg);
 			System.out.println();
-			System.out.println(tg.getPureStrategyGame());
 			
+			System.out.println("pure strategy set game:");
+			MultiSingleProfileGame<BBAPayoff> spsg = mtg.toMultiSinglePureStrategyGame();
+			System.out.println(spsg);
+			System.out.println();
+			
+			System.out.println("tbm:");
+			MultiSingleProfileGame<NormalFormPayoff> tbm = new TransferableBeliefModel(spsg).toNormalForm();
+			System.out.println(tbm);
+			System.out.println();
+			
+			DOBSS tbmDOBSS = new DOBSS(tbm);
+			tbmDOBSS.solve();
+			System.out.println("defender's mixed strategy: " + tbmDOBSS.getDefenderMixedStrategy());
+			System.out.println("attacker pure strategies: " + tbmDOBSS.getAttackerPureStrategies());
+			System.out.println();
+			
+			System.out.println("hurwicz criterion (0.5):");
+			MultiSingleProfileGame<NormalFormPayoff> hurwicz = new HurwiczCriterion(spsg, 0.5).toNormalForm();
+			System.out.println(hurwicz);
+			System.out.println();
+			
+			DOBSS hurwiczDOBSS = new DOBSS(hurwicz);
+			hurwiczDOBSS.solve();
+			System.out.println("defender's mixed strategy: " + hurwiczDOBSS.getDefenderMixedStrategy());
+			System.out.println("attacker pure strategies: " + hurwiczDOBSS.getAttackerPureStrategies());
+			System.out.println();
+			
+			System.out.println("owa:");
+			MultiSingleProfileGame<NormalFormPayoff> owa = new OWABasedModel(spsg).toNormalForm();
+			System.out.println(owa);
+			System.out.println();
+			
+			DOBSS owaDOBSS = new DOBSS(owa);
+			owaDOBSS.solve();
+			System.out.println("defender's mixed strategy: " + owaDOBSS.getDefenderMixedStrategy());
+			System.out.println("attacker pure strategies: " + owaDOBSS.getAttackerPureStrategies());
+			System.out.println();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -438,7 +484,7 @@ public class Test {
 //				
 //				System.out.println("RESULTS");
 //				System.out.println();
-//				Map<Target, Double> dobssDefenderMixedStrategy = dobss.getDefenderMixedStrategy();
+//				MixedStrategy dobssDefenderMixedStrategy = dobss.getDefenderMixedStrategy();
 //				System.out.println("defender's mixed strategy: " + dobssDefenderMixedStrategy);
 //				Map<AttackerType, Target> dobssAttackerPureStrategies = dobss.getAttackerPureStrategies();
 //				System.out.println("attacker pure strategies (DOBSS): " + dobssAttackerPureStrategies);
@@ -580,7 +626,7 @@ public class Test {
 //			
 //			OldDOBSS dobssPointValue = new OldDOBSS(pointValue);
 //			dobssPointValue.solve();
-//			Map<Target, Double> dmsPointValue = dobssPointValue.getDefenderMixedStrategy();
+//			MixedStrategy dmsPointValue = dobssPointValue.getDefenderMixedStrategy();
 //			Map<AttackerType, Target> apsPointValue = Experiments.getAttackerStrategiesPureStrategy(pointValue, dmsPointValue);
 //			double euPointValue = Experiments.expectedUtilityPureStrategy(pointValue, dmsPointValue, apsPointValue);
 //			
@@ -593,7 +639,7 @@ public class Test {
 //			
 //			OldDOBSS dobssSeguaInterval = new OldDOBSS(seguaInterval);
 //			dobssSeguaInterval.solve();
-//			Map<Target, Double> dmsSeguaInterval = dobssSeguaInterval.getDefenderMixedStrategy();
+//			MixedStrategy dmsSeguaInterval = dobssSeguaInterval.getDefenderMixedStrategy();
 //			Map<AttackerType, Target> apsSeguaInterval = Experiments.getAttackerStrategiesPureStrategy(pointValue, dmsSeguaInterval);
 //			double euSeguaInterval = Experiments.expectedUtilityPureStrategy(pointValue, dmsSeguaInterval, apsSeguaInterval);
 //			
@@ -606,7 +652,7 @@ public class Test {
 //			
 //			OldDOBSS dobssPreferenceDegreeInterval = new OldDOBSS(preferenceDegreeInterval);
 //			dobssPreferenceDegreeInterval.solve();
-//			Map<Target, Double> dmsPreferenceDegreeInterval = dobssPreferenceDegreeInterval.getDefenderMixedStrategy();
+//			MixedStrategy dmsPreferenceDegreeInterval = dobssPreferenceDegreeInterval.getDefenderMixedStrategy();
 //			Map<AttackerType, Target> apsPreferenceDegreeInterval = Experiments.getAttackerStrategiesPureStrategy(pointValue, dmsPreferenceDegreeInterval);
 //			double euPreferenceDegreeInterval = Experiments.expectedUtilityPureStrategy(pointValue, dmsPreferenceDegreeInterval, apsPreferenceDegreeInterval);
 //			
@@ -622,7 +668,7 @@ public class Test {
 //		
 //	}
 	
-	public static boolean match(Map<Target, Double> a, Map<Target, Double> b) {
+	public static boolean match(MixedStrategy a, MixedStrategy b) {
 		double deviation = 0.01;
 		for(Entry<Target, Double> entry : a.entrySet()) {
 			if(b.get(entry.getKey()) < entry.getValue() - deviation || b.get(entry.getKey()) > entry.getValue() + deviation) {
@@ -634,8 +680,8 @@ public class Test {
 	
 	public static void randomCompleteVsIncomplete() {
 		
-		Map<Target, Double> dmsOriginal = null;
-		Map<Target, Double> dmsSeguaPointValue = null;
+		MixedStrategy dmsOriginal = null;
+		MixedStrategy dmsSeguaPointValue = null;
 		int count = 1;
 		
 		long estimatedTotalTime = 0;
@@ -802,7 +848,7 @@ public class Test {
 			
 			DOBSS dobssOriginal = new DOBSS(original.toMultiSinglePureStrategyGame());
 			dobssOriginal.solve();
-			Map<Target, Double> dmsOriginal = dobssOriginal.getDefenderMixedStrategy();
+			MixedStrategy dmsOriginal = dobssOriginal.getDefenderMixedStrategy();
 			Map<AttackerType, Target> apsOriginal = dobssOriginal.getAttackerPureStrategies();
 			double euOriginal = dobssOriginal.getDefenderMaxEU();
 			
@@ -865,7 +911,7 @@ public class Test {
 			
 			DOBSS dobssSeguaPointValue = new DOBSS(seguaPointValue);
 			dobssSeguaPointValue.solve();
-			Map<Target, Double> dmsSeguaPointValue = dobssSeguaPointValue.getDefenderMixedStrategy();
+			MixedStrategy dmsSeguaPointValue = dobssSeguaPointValue.getDefenderMixedStrategy();
 			Map<AttackerType, Target> apsSeguaPointValue = dobssSeguaPointValue.getAttackerPureStrategies();
 			double euSeguaPointValue = dobssSeguaPointValue.getDefenderMaxEU();
 			
@@ -882,8 +928,8 @@ public class Test {
 	}
 	
 	public static void main(String[] args) {
-		example();
-//		singleTargetGame();
+//		example();
+		singleTargetGame();
 //		random();
 //		testDOBSS();
 //		milindExample();

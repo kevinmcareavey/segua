@@ -530,7 +530,7 @@ public abstract class Randomizer {
 					b = Randomizer.randomInteger(1, bMax);
 				}
 			}
-		} else if(intervalRestriction == IntervalRestriction.I2) {
+		} else if(intervalRestriction == IntervalRestriction.I5) {
 			// Restriction I5: a>0 && b=0.
 			a = Randomizer.randomInteger(1, aMax);
 			b = 0;
@@ -704,7 +704,7 @@ public abstract class Randomizer {
 					b = Randomizer.randomInteger(1, bMax);
 				}
 			}
-		} else if(intervalRestriction == IntervalRestriction.I2) {
+		} else if(intervalRestriction == IntervalRestriction.I5) {
 			// Restriction I5: a>0 && b=0.
 			a = Randomizer.randomInteger(1, aMax);
 			b = 0;
