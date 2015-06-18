@@ -10,13 +10,11 @@ import java.util.Map.Entry;
 import java.util.TreeSet;
 
 import segua.AttackerType;
-import segua.MixedStrategy;
 import segua.PureStrategyProfile;
 import segua.Target;
 import segua.decision_rules.multi_single_profile_decision_rules.GammaMaximin;
 import segua.decision_rules.multi_single_profile_decision_rules.HurwiczCriterion;
 import segua.decision_rules.multi_single_profile_decision_rules.Maximax;
-import segua.decision_rules.multi_single_profile_decision_rules.OWABasedModel;
 import segua.decision_rules.multi_single_profile_decision_rules.SingleDefault;
 import segua.decision_rules.multi_single_profile_decision_rules.TransferableBeliefModel;
 import segua.multi_security_games.profile_games.MultiSingleProfileGame;
@@ -46,8 +44,7 @@ public class Experiments {
 	
 	private final String BASE = "D:/SeGUA/";
 	
-//	private final double[] ALPHAS = {0.0, 0.2, 0.4, 0.5, 0.7, 0.9, 1.0};
-	private final double[] ALPHAS = {0.2, 0.4, 0.6, 0.8};
+	private final AdvancedSet<Double> ALPHAS = new AdvancedSet<Double>(0.0, 0.2, 0.4, 0.5, 0.7, 0.9, 1.0);
 	
 	private String directory;
 	
@@ -780,11 +777,6 @@ public class Experiments {
 		tbm.println(tbmNormalForm.toString());
 		tbm.close();
 		
-		PrintWriter maximax = new PrintWriter(directory + "step_2a/" + id + "-maximax-pure_strategies-" + label + ".txt", "UTF-8");
-		MultiSingleProfileGame<NormalFormPayoff> maximaxNormalForm = new Maximax(targetGame.toMultiSinglePureStrategyGame()).toNormalForm();
-		maximax.println(maximaxNormalForm.toString());
-		maximax.close();
-		
 		Map<Double, MultiSingleProfileGame<NormalFormPayoff>> hurwitzNormalForms = new HashMap<Double, MultiSingleProfileGame<NormalFormPayoff>>();
 		for(Double alpha : ALPHAS) {
 			PrintWriter hutwitz = new PrintWriter(directory + "step_2a/" + id + "-hurwitz_criterion(alpha=" + alpha + ")-pure_strategies-" + label + ".txt", "UTF-8");
@@ -799,10 +791,10 @@ public class Experiments {
 		gammaMaximin.println(gammaMaximinNormalForm.toString());
 		gammaMaximin.close();
 		
-		PrintWriter owa = new PrintWriter(directory + "step_2a/" + id + "-owa-pure_strategies-" + label + ".txt", "UTF-8");
-		MultiSingleProfileGame<NormalFormPayoff> owaNormalForm = new OWABasedModel(targetGame.toMultiSinglePureStrategyGame()).toNormalForm();
-		owa.println(owaNormalForm.toString());
-		owa.close();
+		PrintWriter maximax = new PrintWriter(directory + "step_2a/" + id + "-maximax-pure_strategies-" + label + ".txt", "UTF-8");
+		MultiSingleProfileGame<NormalFormPayoff> maximaxNormalForm = new Maximax(targetGame.toMultiSinglePureStrategyGame()).toNormalForm();
+		maximax.println(maximaxNormalForm.toString());
+		maximax.close();
 		
 	}
 	
@@ -814,7 +806,7 @@ public class Experiments {
 		MultiSingleProfileGame<NormalFormPayoff> originalNormalForm = pointValueGame.toMultiSinglePureStrategyGame();
 		DOBSS originalDOBSS = new DOBSS(originalNormalForm);
 		originalDOBSS.solve();
-		MixedStrategy dobssDefenderMixedStrategy = originalDOBSS.getDefenderMixedStrategy();
+		Map<Target, Double> dobssDefenderMixedStrategy = originalDOBSS.getDefenderMixedStrategy();
 		Map<AttackerType, Target> ourAttackerPureStrategies = getAttackerStrategiesPureStrategy(originalNormalForm, dobssDefenderMixedStrategy);
 		double dobssDefenderMaxEU = originalDOBSS.getDefenderMaxEU();
 		double ourDefenderMaxEU = Experiments.expectedUtilityPureStrategy(originalNormalForm, dobssDefenderMixedStrategy, ourAttackerPureStrategies);
@@ -831,7 +823,7 @@ public class Experiments {
 		MultiSingleProfileGame<NormalFormPayoff> seguaNormalForm = new SingleDefault(targetGame.toMultiSinglePureStrategyGame()).toNormalForm();
 		DOBSS seguaDOBSS = new DOBSS(seguaNormalForm);
 		seguaDOBSS.solve();
-		MixedStrategy seguaDMS = seguaDOBSS.getDefenderMixedStrategy();
+		Map<Target, Double> seguaDMS = seguaDOBSS.getDefenderMixedStrategy();
 		Map<AttackerType, Target> seguaAS = getAttackerStrategiesTarget(pointValueGame, seguaDMS);
 		double seguaDefenderMaxEU = expectedUtilityTarget(pointValueGame, seguaDMS, seguaAS);
 //		eus.println("segua," + seguaDMS.toString().replace(',', ';') + "," + seguaAS.toString().replace(',', ';') + "," + seguaDefenderMaxEU);
@@ -840,7 +832,7 @@ public class Experiments {
 //		MultiSinglePureStrategyGame<NormalFormPayoff> preferenceDegreeNormalForm = new MultiPreferenceDegree(targetGame.toMultiSinglePureStrategyGame()).toNormalForm();
 //		DOBSS preferenceDegreeDOBSS = new DOBSS(preferenceDegreeNormalForm);
 //		preferenceDegreeDOBSS.solve();
-//		MixedStrategy preferenceDegreeDMS = preferenceDegreeDOBSS.getDefenderMixedStrategy();
+//		Map<Target, Double> preferenceDegreeDMS = preferenceDegreeDOBSS.getDefenderMixedStrategy();
 //		Map<AttackerType, Target> preferenceDegreeAS = getAttackerStrategiesTarget(pointValueGame, preferenceDegreeDMS);
 //		double preferenceDegreeDefenderMaxEU = expectedUtilityTarget(pointValueGame, preferenceDegreeDMS, preferenceDegreeAS);
 		
@@ -848,19 +840,10 @@ public class Experiments {
 		MultiSingleProfileGame<NormalFormPayoff> tbmNormalForm = new TransferableBeliefModel(targetGame.toMultiSinglePureStrategyGame()).toNormalForm();
 		DOBSS tbmDOBSS = new DOBSS(tbmNormalForm);
 		tbmDOBSS.solve();
-		MixedStrategy tbmDMS = tbmDOBSS.getDefenderMixedStrategy();
+		Map<Target, Double> tbmDMS = tbmDOBSS.getDefenderMixedStrategy();
 		Map<AttackerType, Target> tbmAS = getAttackerStrategiesTarget(pointValueGame, tbmDMS);
 		double tbmDefenderMaxEU = expectedUtilityTarget(pointValueGame, tbmDMS, tbmAS);
 //		eus.println("tbm," + tbmDMS.toString().replace(',', ';') + "," + tbmAS.toString().replace(',', ';') + "," + tbmDefenderMaxEU);
-		
-		// Maximax results.
-				MultiSingleProfileGame<NormalFormPayoff> maximaxNormalForm = new Maximax(targetGame.toMultiSinglePureStrategyGame()).toNormalForm();
-				DOBSS maximaxDOBSS = new DOBSS(maximaxNormalForm);
-				maximaxDOBSS.solve();
-				MixedStrategy maximaxDMS = maximaxDOBSS.getDefenderMixedStrategy();
-				Map<AttackerType, Target> maximaxAS = getAttackerStrategiesTarget(pointValueGame, maximaxDMS);
-				double maximaxDefenderMaxEU = expectedUtilityTarget(pointValueGame, maximaxDMS, maximaxAS);
-//				eus.println("maximax," + maximaxDMS.toString().replace(',', ';') + "," + maximaxAS.toString().replace(',', ';') + "," + maximaxDefenderMaxEU);
 		
 		// Hurwitz criterion results.
 		Map<Double, MultiSingleProfileGame<NormalFormPayoff>> hurwitzNormalForms = new HashMap<Double, MultiSingleProfileGame<NormalFormPayoff>>();
@@ -868,7 +851,7 @@ public class Experiments {
 			MultiSingleProfileGame<NormalFormPayoff> hutwitzNormalForm = new HurwiczCriterion(targetGame.toMultiSinglePureStrategyGame(), alpha).toNormalForm();
 			hurwitzNormalForms.put(alpha, hutwitzNormalForm);
 		}
-		Map<Double, MixedStrategy> hurwitzDMS = new HashMap<Double, MixedStrategy>();
+		Map<Double, Map<Target, Double>> hurwitzDMS = new HashMap<Double, Map<Target, Double>>();
 		Map<Double, Map<AttackerType, Target>> hurwitzAS = new HashMap<Double, Map<AttackerType, Target>>();
 		Map<Double, Double> hurwitzDefenderMaxEU = new HashMap<Double, Double>();
 		for(Entry<Double, MultiSingleProfileGame<NormalFormPayoff>> entry : hurwitzNormalForms.entrySet()) {
@@ -886,19 +869,19 @@ public class Experiments {
 		MultiSingleProfileGame<NormalFormPayoff> gammaMaximinNormalForm = new GammaMaximin(targetGame.toMultiSinglePureStrategyGame()).toNormalForm();
 		DOBSS gammaMaximinDOBSS = new DOBSS(gammaMaximinNormalForm);
 		gammaMaximinDOBSS.solve();
-		MixedStrategy gammaMaximinDMS = gammaMaximinDOBSS.getDefenderMixedStrategy();
+		Map<Target, Double> gammaMaximinDMS = gammaMaximinDOBSS.getDefenderMixedStrategy();
 		Map<AttackerType, Target> gammaMaximinAS = getAttackerStrategiesTarget(pointValueGame, gammaMaximinDMS);
 		double gammaMaximinDefenderMaxEU = expectedUtilityTarget(pointValueGame, gammaMaximinDMS, gammaMaximinAS);
 //		eus.println("gamma_maximin," + gammaMaximinDMS.toString().replace(',', ';') + "," + gammaMaximinAS.toString().replace(',', ';') + "," + gammaMaximinDefenderMaxEU);
 		
-		// OWA results.
-		MultiSingleProfileGame<NormalFormPayoff> owaNormalForm = new OWABasedModel(targetGame.toMultiSinglePureStrategyGame()).toNormalForm();
-		DOBSS owaDOBSS = new DOBSS(owaNormalForm);
-		owaDOBSS.solve();
-		MixedStrategy owaDMS = owaDOBSS.getDefenderMixedStrategy();
-		Map<AttackerType, Target> owaAS = getAttackerStrategiesTarget(pointValueGame, owaDMS);
-		double owaDefenderMaxEU = expectedUtilityTarget(pointValueGame, owaDMS, owaAS);
-//		eus.println("owa," + owaDMS.toString().replace(',', ';') + "," + owaAS.toString().replace(',', ';') + "," + owaDefenderMaxEU);
+		// Maximax results.
+		MultiSingleProfileGame<NormalFormPayoff> maximaxNormalForm = new Maximax(targetGame.toMultiSinglePureStrategyGame()).toNormalForm();
+		DOBSS maximaxDOBSS = new DOBSS(maximaxNormalForm);
+		maximaxDOBSS.solve();
+		Map<Target, Double> maximaxDMS = maximaxDOBSS.getDefenderMixedStrategy();
+		Map<AttackerType, Target> maximaxAS = getAttackerStrategiesTarget(pointValueGame, maximaxDMS);
+		double maximaxDefenderMaxEU = expectedUtilityTarget(pointValueGame, maximaxDMS, maximaxAS);
+//		eus.println("maximax," + maximaxDMS.toString().replace(',', ';') + "," + maximaxAS.toString().replace(',', ';') + "," + maximaxDefenderMaxEU);
 		
 		/*
 		 * Calculate rankings.
@@ -908,12 +891,11 @@ public class Experiments {
 		orderedSet.add(round(seguaDefenderMaxEU));
 //		orderedSet.add(round(preferenceDegreeDefenderMaxEU));
 		orderedSet.add(round(tbmDefenderMaxEU));
-		orderedSet.add(round(maximaxDefenderMaxEU));
 		for(Double alpha : ALPHAS) {
 			orderedSet.add(round(hurwitzDefenderMaxEU.get(alpha)));
 		}
 		orderedSet.add(round(gammaMaximinDefenderMaxEU));
-		orderedSet.add(round(owaDefenderMaxEU));
+		orderedSet.add(round(maximaxDefenderMaxEU));
 		
 		int rank = 1;
 		Map<String, Integer> ranking = new HashMap<String, Integer>();
@@ -922,12 +904,11 @@ public class Experiments {
 			if(round(seguaDefenderMaxEU).equals(element)) ranking.put("segua", rank);
 //			if(round(preferenceDegreeDefenderMaxEU).equals(element)) ranking.put("preference_degree", rank);
 			if(round(tbmDefenderMaxEU).equals(element)) ranking.put("tbm", rank);
-			if(round(maximaxDefenderMaxEU).equals(element)) ranking.put("maximax", rank);
 			for(Double alpha : ALPHAS) {
 				if(round(hurwitzDefenderMaxEU.get(alpha)).equals(element)) ranking.put("hurwitz_criterion(alpha=" + alpha + ")", rank);
 			}
 			if(round(gammaMaximinDefenderMaxEU).equals(element)) ranking.put("gamma_maximin", rank);
-			if(round(owaDefenderMaxEU).equals(element)) ranking.put("owa", rank);
+			if(round(maximaxDefenderMaxEU).equals(element)) ranking.put("maximax", rank);
 			rank++;
 		}
 		/*
@@ -938,12 +919,11 @@ public class Experiments {
 		eus.println("segua," + seguaDMS.toString().replace(',', ';') + "," + seguaAS.toString().replace(',', ';') + "," + seguaDefenderMaxEU + "," + ranking.get("segua"));
 //		eus.println("preference_degree," + preferenceDegreeDMS.toString().replace(',', ';') + "," + preferenceDegreeAS.toString().replace(',', ';') + "," + preferenceDegreeDefenderMaxEU + "," + ranking.get("preference_degree"));
 		eus.println("tbm," + tbmDMS.toString().replace(',', ';') + "," + tbmAS.toString().replace(',', ';') + "," + tbmDefenderMaxEU + "," + ranking.get("tbm"));
-		eus.println("maximax," + maximaxDMS.toString().replace(',', ';') + "," + maximaxAS.toString().replace(',', ';') + "," + maximaxDefenderMaxEU + "," + ranking.get("maximax"));
 		for(Double alpha : ALPHAS) {
 			eus.println("hurwitz_criterion(alpha=" + alpha + ")," + hurwitzDMS.get(alpha).toString().replace(',', ';') + "," + hurwitzAS.get(alpha).toString().replace(',', ';') + "," + hurwitzDefenderMaxEU.get(alpha) + "," + ranking.get("hurwitz_criterion(alpha=" + alpha + ")"));
 		}
 		eus.println("gamma_maximin," + gammaMaximinDMS.toString().replace(',', ';') + "," + gammaMaximinAS.toString().replace(',', ';') + "," + gammaMaximinDefenderMaxEU + "," + ranking.get("gamma_maximin"));
-		eus.println("owa," + owaDMS.toString().replace(',', ';') + "," + owaAS.toString().replace(',', ';') + "," + owaDefenderMaxEU + "," + ranking.get("owa"));
+		eus.println("maximax," + maximaxDMS.toString().replace(',', ';') + "," + maximaxAS.toString().replace(',', ';') + "," + maximaxDefenderMaxEU + "," + ranking.get("maximax"));
 		
 	}
 	
@@ -953,11 +933,11 @@ public class Experiments {
 		return new BigDecimal(String.valueOf(d)).setScale(decimalPlaces, RoundingMode.HALF_UP);
 	}
 	
-	public Map<AttackerType, Target> getAttackerStrategiesTarget(MultiSingleTargetGame<NormalFormPayoff> pointValue, MixedStrategy defMixedStrategy) throws Exception {
+	public Map<AttackerType, Target> getAttackerStrategiesTarget(MultiSingleTargetGame<NormalFormPayoff> pointValue, Map<Target, Double> defMixedStrategy) throws Exception {
 		return getAttackerStrategiesPureStrategy(pointValue.toMultiSinglePureStrategyGame(), defMixedStrategy);
 	}
 	
-	public Map<AttackerType, Target> getAttackerStrategiesPureStrategy(MultiSingleProfileGame<NormalFormPayoff> pointValue, MixedStrategy defMixedStrategy) throws Exception {
+	public Map<AttackerType, Target> getAttackerStrategiesPureStrategy(MultiSingleProfileGame<NormalFormPayoff> pointValue, Map<Target, Double> defMixedStrategy) throws Exception {
 		
 		ArrayList<AdvancedSet<AttackerPureStrategy>> possibleStrategies = new ArrayList<AdvancedSet<AttackerPureStrategy>>();
 		
@@ -1067,11 +1047,11 @@ public class Experiments {
 	    return ret;
 	}
 	
-	public static double expectedUtilityTarget(MultiSingleTargetGame<NormalFormPayoff> pointValue, MixedStrategy defMixedStrategy, Map<AttackerType, Target> attackerStrategies) throws Exception {
+	public static double expectedUtilityTarget(MultiSingleTargetGame<NormalFormPayoff> pointValue, Map<Target, Double> defMixedStrategy, Map<AttackerType, Target> attackerStrategies) throws Exception {
 		return expectedUtilityPureStrategy(pointValue.toMultiSinglePureStrategyGame(), defMixedStrategy, attackerStrategies);
 	}
 	
-	public static double expectedUtilityPureStrategy(MultiSingleProfileGame<NormalFormPayoff> pointValue, MixedStrategy defMixedStrategy, Map<AttackerType, Target> attackerStrategies) throws Exception {
+	public static double expectedUtilityPureStrategy(MultiSingleProfileGame<NormalFormPayoff> pointValue, Map<Target, Double> defMixedStrategy, Map<AttackerType, Target> attackerStrategies) throws Exception {
 		
 		double sum = 0;
 		
@@ -1250,20 +1230,20 @@ public class Experiments {
 	public static void main(String[] args) {
 		try {
 			ArrayList<IntervalRestriction> intervalRestrictions = new ArrayList<IntervalRestriction>();
-			intervalRestrictions.add(IntervalRestriction.I1);
-			intervalRestrictions.add(IntervalRestriction.I2);
-			intervalRestrictions.add(IntervalRestriction.I3);
-			intervalRestrictions.add(IntervalRestriction.I4);
+//			intervalRestrictions.add(IntervalRestriction.I1);
+//			intervalRestrictions.add(IntervalRestriction.I2);
+//			intervalRestrictions.add(IntervalRestriction.I3);
+//			intervalRestrictions.add(IntervalRestriction.I4);
 			intervalRestrictions.add(IntervalRestriction.I5);
 			
 			ArrayList<LotteryRestriction> lotteryRestrictions = new ArrayList<LotteryRestriction>();
-			lotteryRestrictions.add(LotteryRestriction.L1);
+//			lotteryRestrictions.add(LotteryRestriction.L1);
 			lotteryRestrictions.add(LotteryRestriction.L2);
 			lotteryRestrictions.add(LotteryRestriction.L3);
 			
 			for(IntervalRestriction ir : intervalRestrictions) {
 				for(LotteryRestriction lr : lotteryRestrictions) {
-					new Experiments(3, ir, lr).part3(1000);
+					new Experiments(3, ir, lr).part3(100);
 				}
 			}
 		} catch(Exception e) {

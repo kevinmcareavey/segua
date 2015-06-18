@@ -6,7 +6,7 @@ public abstract class Solver {
 	
 	public abstract void solve() throws Exception;
 	
-	public abstract MixedStrategy getDefenderMixedStrategy();
+	public abstract Map<Target, Double> getDefenderMixedStrategy();
 	
 	public abstract Map<AttackerType, Target> getAttackerPureStrategies();
 	

@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import segua.AttackerType;
-import segua.MixedStrategy;
 import segua.PureStrategyProfile;
 import segua.Solver;
 import segua.Target;
@@ -170,8 +169,8 @@ public class DOBSS extends Solver {
 	}
 	
 	@Override
-	public MixedStrategy getDefenderMixedStrategy() {
-		MixedStrategy defenderMixedStrategy = new MixedStrategy();
+	public Map<Target, Double> getDefenderMixedStrategy() {
+		Map<Target, Double> defenderMixedStrategy = new HashMap<Target, Double>();
 		for(int i = 0; i < X; i++) {
 			defenderMixedStrategy.put(targets[i], x[i]);
 		}
