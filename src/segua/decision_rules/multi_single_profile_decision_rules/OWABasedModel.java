@@ -25,7 +25,7 @@ public class OWABasedModel extends MultiSingleProfileDecisionRule {
 		if(index > size) {
 			throw new Exception("index out of bounds");
 		}
-		double sum = (double)size * ((double)size + (double)1) / (double)2;
+		double sum = ((double)size * ((double)size + (double)1)) / (double)2;
 		return ((double)1 / sum) * (double)index;
 	}
 	

@@ -1189,10 +1189,6 @@ public class Experiments {
 					System.out.print(".");
 				}
 				part3IntervalLottery(i, originalIntegerGame, negative, positive);
-//				System.out.print(".");
-//				part3MixedAmbiguities(i, originalIntegerGame, negative, positive);
-//				System.out.print(".");
-//				part3MixedLottery(i, originalIntegerGame, negative, positive);
 				
 				System.out.println("done");
 			}
@@ -1250,6 +1246,8 @@ public class Experiments {
 	
 	public static void main(String[] args) {
 		try {
+			int samples = 1000;
+			
 			ArrayList<IntervalRestriction> intervalRestrictions = new ArrayList<IntervalRestriction>();
 			intervalRestrictions.add(IntervalRestriction.I1);
 			intervalRestrictions.add(IntervalRestriction.I2);
@@ -1264,7 +1262,7 @@ public class Experiments {
 			
 			for(IntervalRestriction ir : intervalRestrictions) {
 				for(LotteryRestriction lr : lotteryRestrictions) {
-					new Experiments(3, ir, lr).part3(1000);
+					new Experiments(3, ir, lr).part3(samples);
 				}
 			}
 		} catch(Exception e) {
